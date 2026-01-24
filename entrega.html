@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#7cb342">
+  <link rel="manifest" href="manifest.json">
+  <title>🍔 Kadu Lanches - Dados de Entrega</title>
+  <link rel="stylesheet" href="estilizacao-lanche.css">
+</head>
+<body>
+  <header class="flow-header">
+    <button class="close-flow" onclick="window.location.href='visual-lanche.html'">←</button>
+    <h2>📍 Dados de Entrega</h2>
+    <button id="theme-toggle" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">🌙</button>
+  </header>
+
+  <section class="flow-content" style="padding-top: 20px;">
+    <form id="delivery-form" class="delivery-form">
+      <label>Nome
+        <input type="text" id="del-nome" required>
+      </label>
+      <label>Telefone
+        <input type="tel" id="del-telefone" required>
+      </label>
+      <label>Rua
+        <input type="text" id="del-rua" required>
+      </label>
+      <label>Número
+        <input type="text" id="del-numero" required>
+      </label>
+      <label>Bairro
+        <input type="text" id="del-bairro" required>
+      </label>
+      <label>Cidade
+        <input type="text" id="del-cidade" required>
+      </label>
+      <label>Ponto de referência (opcional)
+        <input type="text" id="del-referencia">
+      </label>
+      <div class="flow-actions">
+        <button type="submit">Continuar para pagamento</button>
+      </div>
+    </form>
+  </section>
+
+  <script src="js/shared.js"></script>
+  <script>
+    // Carregar dados existentes se houver//
+    const user = JSON.parse(localStorage.getItem('user')) || {};
+    document.getElementById('del-nome').value = user.nome || '';
+    document.getElementById('del-telefone').value = user.telefone || '';
+    if (user.endereco) {
+      document.getElementById('del-rua').value = user.endereco.rua || '';
+      document.getElementById('del-numero').value = user.endereco.numero || '';
+      document.getElementById('del-bairro').value = user.endereco.bairro || '';
+      document.getElementById('del-cidade').value = user.endereco.cidade || '';
+      document.getElementById('del-referencia').value = user.endereco.referencia || '';
+    }
+
+    // Salvar e ir para pagamento
+    document.getElementById('delivery-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nome = document.getElementById('del-nome').value.trim();
+      const telefone = document.getElementById('del-telefone').value.trim();
+      const rua = document.getElementById('del-rua').value.trim();
+      const numero = document.getElementById('del-numero').value.trim();
+      const bairro = document.getElementById('del-bairro').value.trim();
+      const cidade = document.getElementById('del-cidade').value.trim();
+      const referencia = document.getElementById('del-referencia').value.trim();
+      const endereco = { rua, numero, bairro, cidade, referencia };
+      const user = { nome, telefone, endereco };
+      localStorage.setItem('user', JSON.stringify(user));
+      window.location.href = 'pagamento.html';
+    });
+  </script>
+</body>
+</html>
