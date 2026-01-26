@@ -1,10 +1,25 @@
-const CACHE_NAME = 'kadu-lanches-v1';
+const CACHE_NAME = 'kadu-lanches-v2';
 const urlsToCache = [
   '/',
-  '/visual-lanche.html',
-  '/estilizacao-lanche.css',
-  '/interacao-lanche.js',
-  '/manifest.json'
+  '/index.html',
+  '/entrega.html',
+  '/pagamento.html',
+  '/manifest.json',
+  '/data/menu.json',
+  '/src/styles/main.css',
+  '/js/config.js',
+  '/js/security.js',
+  '/js/shared.js',
+  '/js/notification.js',
+  '/src/scripts/app.js',
+  '/src/scripts/models/MenuItem.js',
+  '/src/scripts/models/CartItem.js',
+  '/src/scripts/models/User.js',
+  '/src/scripts/models/Payment.js',
+  '/src/scripts/services/MenuAPI.js',
+  '/src/scripts/services/Store.js',
+  '/src/scripts/controllers/MenuController.js',
+  '/src/scripts/controllers/CartController.js'
 ];
 
 self.addEventListener('install', event => {

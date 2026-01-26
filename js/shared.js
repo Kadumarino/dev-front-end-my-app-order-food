@@ -114,7 +114,7 @@ function showClosedModal() {
   document.head.appendChild(fadeOutStyle);
 
   // Desabilitar interações quando fechado
-  if (window.location.pathname.includes('visual-lanche.html')) {
+  if (window.location.pathname.includes('index.html')) {
     const addButtons = document.querySelectorAll('.item button');
     addButtons.forEach(btn => {
       btn.disabled = true;
@@ -194,9 +194,16 @@ function sendWhatsApp(user, payment, cart, total) {
     trocoTexto = payment.troco ? `\nTroco para: R$ ${formatPrice(parseFloat(payment.troco))}` : '';
   }
 
-  const message = `🍔 *Pedido Kadu Lanches*\n\n👤 Cliente: ${user.nome}\n📞 Telefone: ${user.telefone || 'Não informado'}\n\n📝 *Itens:*\n${itemsList}\n\n💰 *Total: R$${formatPrice(total)}*\n💳 ${paymentLine}${trocoTexto}\n\n📍 Endereço: ${enderecoFormatado}`;
+  // Sanitizar dados do usuário
+  const sanitizedUser = {
+    nome: sanitizeText(user.nome),
+    telefone: sanitizeText(user.telefone || 'Não informado')
+  };
 
-  const whatsappNumber = '5519986021602';
+  const message = `🍔 *Pedido Kadu Lanches*\n\n👤 Cliente: ${sanitizedUser.nome}\n📞 Telefone: ${sanitizedUser.telefone}\n\n📝 *Itens:*\n${itemsList}\n\n💰 *Total: R$${formatPrice(total)}*\n💳 ${paymentLine}${trocoTexto}\n\n📍 Endereço: ${enderecoFormatado}`;
+
+  // Usar configuração centralizada
+  const whatsappNumber = CONFIG.whatsapp.number;
   
   // Detectar plataforma
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -213,7 +220,7 @@ function sendWhatsApp(user, payment, cart, total) {
   setTimeout(() => {
     localStorage.removeItem('cart');
     localStorage.removeItem('payment');
-    window.location.href = 'visual-lanche.html';
+    window.location.href = 'index.html';
   }, 2000);
 }
 
