@@ -1,0 +1,213 @@
+/* ===============================================
+   PÁGINAS: Entrega e Pagamento
+   =============================================== */
+
+/* Seção de formulário/fluxo */
+.flow-section {
+  max-width: 600px;
+  margin: var(--spacing-xl) auto;
+  padding: 0 var(--spacing-md);
+}
+
+.flow-content {
+  background: var(--item-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* Forms específicos de fluxo */
+.flow-content form {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.flow-content .form-row {
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  gap: var(--spacing-md);
+  -webkit-flex-wrap: wrap;
+  -moz-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.flow-content .form-row > * {
+  -webkit-flex: 1;
+  -moz-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  min-width: 200px;
+}
+
+/* Botões de ação do fluxo */
+.flow-actions {
+  margin-top: var(--spacing-xl);
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  gap: var(--spacing-md);
+  -webkit-flex-wrap: wrap;
+  -moz-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.flow-actions button {
+  -webkit-flex: 1;
+  -moz-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  min-width: 200px;
+  padding: var(--spacing-lg);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Grid de cards de pagamento */
+.payment-methods {
+  display: -ms-grid;
+  display: grid;
+  gap: var(--spacing-md);
+  -ms-grid-columns: 1fr;
+  grid-template-columns: 1fr;
+  margin: var(--spacing-lg) 0;
+}
+
+/* Cards de pagamento */
+.pay-card {
+  background: var(--item-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-align: center;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  -moz-flex-direction: column;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  -moz-align-items: center;
+  -ms-align-items: center;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.pay-card .pay-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-xs);
+}
+
+.pay-card p {
+  font-size: var(--font-size-sm);
+  opacity: 0.8;
+  margin: 0;
+}
+
+.pay-card:hover {
+  border-color: var(--header-bg);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.pay-card.active {
+  border-color: var(--header-bg);
+  background: rgba(124, 179, 66, 0.1);
+  box-shadow: var(--shadow-lg);
+  border-width: 3px;
+}
+
+/* Detalhes de pagamento */
+.payment-details {
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background: var(--filters-bg);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+}
+
+.payment-details .payment-info {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.payment-details .payment-info p {
+  font-size: var(--font-size-lg);
+  margin: 0;
+}
+
+/* Responsive para páginas de fluxo */
+@media (min-width: 481px) {
+  .flow-section {
+    padding: 0 var(--spacing-xl);
+  }
+
+  .flow-content {
+    padding: var(--spacing-xl);
+  }
+
+  .payment-methods {
+    -ms-grid-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .flow-section {
+    margin: var(--spacing-2xl) auto;
+  }
+
+  .payment-methods {
+    -ms-grid-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  .pay-card {
+    padding: var(--spacing-xl);
+  }
+
+  .flow-actions {
+    -webkit-flex-wrap: nowrap;
+    -moz-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+  }
+
+  .flow-actions button {
+    min-width: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .flow-section {
+    max-width: 800px;
+  }
+
+  .payment-methods {
+    -ms-grid-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

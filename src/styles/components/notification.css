@@ -1,0 +1,126 @@
+/* ===============================================
+   COMPONENTE: NOTIFICATION (Toast)
+   =============================================== */
+
+.notification-container {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.notification {
+  background: white;
+  color: var(--text-color);
+  padding: 16px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 300px;
+  max-width: 400px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(450px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: all;
+  border-left: 4px solid var(--header-bg);
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.notification-message {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.notification-close {
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.notification-close:hover {
+  opacity: 1;
+}
+
+.notification-error {
+  border-left-color: #e53935;
+  background: #ffebee;
+}
+
+.notification-success {
+  border-left-color: #43a047;
+  background: #e8f5e9;
+}
+
+.notification-warning {
+  border-left-color: #fb8c00;
+  background: #fff3e0;
+}
+
+.notification-info {
+  border-left-color: #1e88e5;
+  background: #e3f2fd;
+}
+
+/* Dark mode */
+body.dark-mode .notification {
+  background: var(--item-bg);
+  color: var(--text-color);
+}
+
+body.dark-mode .notification-error {
+  background: rgba(229, 57, 53, 0.15);
+}
+
+body.dark-mode .notification-success {
+  background: rgba(67, 160, 71, 0.15);
+}
+
+body.dark-mode .notification-warning {
+  background: rgba(251, 140, 0, 0.15);
+}
+
+body.dark-mode .notification-info {
+  background: rgba(30, 136, 229, 0.15);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .notification-container {
+    right: 10px;
+    left: 10px;
+    top: 70px;
+  }
+  
+  .notification {
+    min-width: auto;
+    max-width: none;
+    width: 100%;
+  }
+}
