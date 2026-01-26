@@ -288,23 +288,29 @@ class CartController {
    * Verifica horário de funcionamento
    */
   checkBusinessHours() {
+    // Obter horário de Brasília (UTC-3)
     const now = new Date();
-    const day = now.getDay();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
+    const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    
+    const day = brasiliaTime.getDay();
+    const hours = brasiliaTime.getHours();
+    const minutes = brasiliaTime.getMinutes();
     const currentTime = hours * 60 + minutes;
+
+    // Debug: descomentar para testar
+    // console.log('CartController - Debug horário Brasília:', { day, hours, minutes, currentTime, date: brasiliaTime.toString() });
 
     let isOpen = false;
 
     if (day === 5) {
       // Sexta: 18:00 às 00:00
-      isOpen = currentTime >= 18 * 60;
+      isOpen = currentTime >= (18 * 60); // 1080 minutos
     } else if (day === 6) {
       // Sábado: 15:00 às 00:00
-      isOpen = currentTime >= 15 * 60;
+      isOpen = currentTime >= (15 * 60); // 900 minutos
     } else if (day === 0) {
       // Domingo: 15:00 às 00:00
-      isOpen = currentTime >= 15 * 60;
+      isOpen = currentTime >= (15 * 60); // 900 minutos
     }
 
     return isOpen;
@@ -314,9 +320,12 @@ class CartController {
    * Retorna próximo horário disponível
    */
   getNextAvailableTime() {
+    // Obter horário de Brasília
     const now = new Date();
-    const day = now.getDay();
-    const hours = now.getHours();
+    const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+    
+    const day = brasiliaTime.getDay();
+    const hours = brasiliaTime.getHours();
     
     // Se for sexta e antes das 18h
     if (day === 5 && hours < 18) {

@@ -2,132 +2,32 @@
 
 // Verificar horário de atendimento
 function checkBusinessHours() {
+  // Obter horário de Brasília (UTC-3)
   const now = new Date();
-  const day = now.getDay(); // 0=Domingo, 5=Sexta, 6=Sábado
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
+  const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  
+  const day = brasiliaTime.getDay(); // 0=Domingo, 5=Sexta, 6=Sábado
+  const hours = brasiliaTime.getHours();
+  const minutes = brasiliaTime.getMinutes();
   const currentTime = hours * 60 + minutes; // Tempo em minutos
+
+  // Debug: descomentar para testar
+  // console.log('Debug horário Brasília:', { day, hours, minutes, currentTime, date: brasiliaTime.toString() });
 
   let isOpen = false;
 
   if (day === 5) {
     // Sexta: 18:00 às 00:00
-    isOpen = currentTime >= 18 * 60; // A partir das 18:00
+    isOpen = currentTime >= (18 * 60); // A partir das 18:00 (1080 minutos)
   } else if (day === 6) {
     // Sábado: 15:00 às 00:00
-    isOpen = currentTime >= 15 * 60; // A partir das 15:00
+    isOpen = currentTime >= (15 * 60); // A partir das 15:00 (900 minutos)
   } else if (day === 0) {
     // Domingo: 15:00 às 00:00
-    isOpen = currentTime >= 15 * 60; // A partir das 15:00
+    isOpen = currentTime >= (15 * 60); // A partir das 15:00 (900 minutos)
   }
 
   return isOpen;
-}
-
-function showClosedModal() {
-  const modal = document.createElement('div');
-  modal.id = 'closed-modal';
-  modal.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    animation: fadeIn 0.3s ease;
-  `;
-
-  const modalContent = document.createElement('div');
-  modalContent.style.cssText = `
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    max-width: 400px;
-    width: 90%;
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-    animation: slideIn 0.4s ease;
-  `;
-
-  modalContent.innerHTML = `
-    <div style="font-size: 60px; margin-bottom: 20px;">🔒</div>
-    <h2 style="margin: 0 0 15px; color: #333; font-size: 24px;">Desculpe, estamos fechados!</h2>
-    <p style="color: #666; margin: 0 0 20px; font-size: 16px; line-height: 1.6;">
-      <strong>Horários de atendimento:</strong><br>
-      🗓️ <strong>Sextas:</strong> 18:00 às 00:00<br>
-      🗓️ <strong>Sábados:</strong> 15:00 às 00:00<br>
-      🗓️ <strong>Domingos:</strong> 15:00 às 00:00
-    </p>
-    <button id="close-modal-btn" style="
-      background: #7cb342;
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    ">OK, entendi</button>
-  `;
-
-  modal.appendChild(modalContent);
-  document.body.appendChild(modal);
-
-  // Adicionar animações CSS
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slideIn {
-      from { transform: translateY(-30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    #close-modal-btn:hover {
-      background: #689f38 !important;
-      transform: scale(1.05);
-    }
-  `;
-  document.head.appendChild(style);
-
-  // Fechar modal
-  document.getElementById('close-modal-btn').addEventListener('click', () => {
-    modal.style.animation = 'fadeOut 0.3s ease';
-    setTimeout(() => modal.remove(), 300);
-  });
-
-  // Adicionar fadeOut
-  const fadeOutStyle = document.createElement('style');
-  fadeOutStyle.textContent = `
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-  `;
-  document.head.appendChild(fadeOutStyle);
-
-  // Desabilitar interações quando fechado
-  if (window.location.pathname.includes('index.html')) {
-    const addButtons = document.querySelectorAll('.item button');
-    addButtons.forEach(btn => {
-      btn.disabled = true;
-      btn.style.opacity = '0.5';
-      btn.style.cursor = 'not-allowed';
-    });
-    const viewOrderBtn = document.getElementById('view-order');
-    if (viewOrderBtn) {
-      viewOrderBtn.disabled = true;
-      viewOrderBtn.style.opacity = '0.5';
-      viewOrderBtn.style.cursor = 'not-allowed';
-    }
-  }
 }
 
 // Dark mode toggle
@@ -204,7 +104,7 @@ function sendWhatsApp(user, payment, cart, total) {
   const scheduledOrder = JSON.parse(localStorage.getItem('scheduledOrder') || '{}');
   let scheduleText = '';
   if (scheduledOrder.scheduled) {
-    scheduleText = `\n\n⏰ *PEDIDO AGENDADO PARA ${scheduledOrder.deliveryTime.toUpperCase()}*`;
+    scheduleText = `\n\n⏰ *ENTREGA AGENDADA PARA ${scheduledOrder.deliveryTime.toUpperCase()}*\n📞 _O estabelecimento entrará em contato para confirmar o horário de entrega._`;
   }
 
   const message = `🍔 *Pedido Kadu Lanches*${scheduleText}\n\n👤 Cliente: ${sanitizedUser.nome}\n📞 Telefone: ${sanitizedUser.telefone}\n\n📝 *Itens:*\n${itemsList}\n\n💰 *Total: R$${formatPrice(total)}*\n💳 ${paymentLine}${trocoTexto}\n\n📍 Endereço: ${enderecoFormatado}`;
