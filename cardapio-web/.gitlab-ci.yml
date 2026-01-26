@@ -1,0 +1,12 @@
+pages:
+  stage: deploy
+  script:
+    - mkdir -p public
+    - cp -r * public/ || true
+    - rm -rf public/public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
+    - app-lanches-alteracao1
