@@ -1,0 +1,146 @@
+/* ===============================================
+   RESPONSIVE: Media Queries
+   =============================================== */
+
+/* Mobile First - Base styles já são mobile */
+
+/* Small devices (landscape phones, 481px and up) */
+@media (min-width: 481px) {
+  header {
+    padding: var(--spacing-xl) var(--spacing-2xl);
+  }
+
+  .item img {
+    height: 200px;
+  }
+
+  .grid-auto {
+    -ms-grid-columns: (minmax(300px, 1fr))[auto-fit];
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) {
+  :root {
+    --font-size-base: 1.125rem;  /* 18px */
+    --font-size-xl: 1.5rem;      /* 24px */
+    --font-size-2xl: 1.875rem;   /* 30px */
+    --font-size-3xl: 2.25rem;    /* 36px */
+  }
+
+  .container {
+    padding: 0 var(--spacing-xl);
+  }
+
+  header .brand h1 {
+    font-size: var(--font-size-3xl);
+  }
+
+  .grid-auto {
+    -ms-grid-columns: (minmax(320px, 1fr))[auto-fit];
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  }
+
+  .item img {
+    height: 220px;
+  }
+
+  .modal-content {
+    max-width: 600px;
+  }
+
+  .cart-section {
+    position: sticky;
+    top: 100px;
+  }
+}
+
+/* Large devices (desktops, 1024px and up) */
+@media (min-width: 1024px) {
+  .grid-auto {
+    -ms-grid-columns: (minmax(280px, 1fr))[auto-fit];
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-xl);
+  }
+
+  .item:hover {
+    transform: translateY(-8px);
+  }
+
+  /* Layout de uma coluna com carrinho embaixo */
+  .main-layout {
+    display: block;
+    margin-top: var(--spacing-xl);
+  }
+
+  .menu-section {
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .cart-section {
+    width: 100%;
+    align-self: start;
+  }
+}
+
+/* Extra large devices (large desktops, 1440px and up) */
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1400px;
+  }
+
+  .grid-auto {
+    -ms-grid-columns: (minmax(300px, 1fr))[auto-fit];
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+
+  .item img {
+    height: 240px;
+  }
+}
+
+/* Print styles */
+@media print {
+  header,
+  .cart-section,
+  button,
+  .modal {
+    display: none !important;
+  }
+
+  .item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .dark-mode {
+    --border-color: #fff;
+  }
+
+  button,
+  .item,
+  .cart-item,
+  .card {
+    border-width: 3px;
+  }
+}
