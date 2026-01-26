@@ -154,4 +154,38 @@ document.addEventListener('DOMContentLoaded', () => {
     // index.html ou raiz
     initIndexPage();
   }
+
+  // Registrar service worker com auto-atualização
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker registrado com sucesso');
+        
+        // Verificar atualizações a cada 60 segundos
+        setInterval(() => {
+          registration.update();
+        }, 60000);
+
+        // Detectar quando novo service worker está aguardando
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // Novo service worker disponível - recarregar página automaticamente
+              console.log('Nova versão disponível - atualizando...');
+              window.location.reload();
+            }
+          });
+        });
+      })
+      .catch(error => {
+        console.error('Erro ao registrar Service Worker:', error);
+      });
+
+    // Recarregar quando o service worker tomar controle
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
+  }
 });
