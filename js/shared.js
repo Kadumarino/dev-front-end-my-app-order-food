@@ -2,23 +2,29 @@
 
 // Verificar horário de atendimento
 function checkBusinessHours() {
+  // Obter horário de Brasília (UTC-3)
   const now = new Date();
-  const day = now.getDay(); // 0=Domingo, 5=Sexta, 6=Sábado
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
+  const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  
+  const day = brasiliaTime.getDay(); // 0=Domingo, 5=Sexta, 6=Sábado
+  const hours = brasiliaTime.getHours();
+  const minutes = brasiliaTime.getMinutes();
   const currentTime = hours * 60 + minutes; // Tempo em minutos
+
+  // Debug: descomentar para testar
+  // console.log('Debug horário Brasília:', { day, hours, minutes, currentTime, date: brasiliaTime.toString() });
 
   let isOpen = false;
 
   if (day === 5) {
     // Sexta: 18:00 às 00:00
-    isOpen = currentTime >= 18 * 60; // A partir das 18:00
+    isOpen = currentTime >= (18 * 60); // A partir das 18:00 (1080 minutos)
   } else if (day === 6) {
     // Sábado: 15:00 às 00:00
-    isOpen = currentTime >= 15 * 60; // A partir das 15:00
+    isOpen = currentTime >= (15 * 60); // A partir das 15:00 (900 minutos)
   } else if (day === 0) {
     // Domingo: 15:00 às 00:00
-    isOpen = currentTime >= 15 * 60; // A partir das 15:00
+    isOpen = currentTime >= (15 * 60); // A partir das 15:00 (900 minutos)
   }
 
   return isOpen;

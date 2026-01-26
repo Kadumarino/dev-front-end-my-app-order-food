@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kadu-lanches-v7';
+const CACHE_NAME = 'kadu-lanches-v9';
 const urlsToCache = [
   '/',
   '/index.html',
