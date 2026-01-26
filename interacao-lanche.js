@@ -1,22 +1,22 @@
 const menuItems = [
   // Lanches
   { name: 'X-Burger', description: 'Hambúrguer artesanal, queijo prato', price: 18, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80', category: 'lanches', adicionais: ['Queijo extra (+R$2)', 'Bacon (+R$3)', 'Cebola crispy (+R$2)'] },
-  { name: 'X-Salada', description: 'Hambúrguer, queijo, alface, tomate', price: 20, image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80', category: 'lanches', adicionais: ['Queijo extra (+R$2)', 'Molho especial (+R$2)', 'Picles (+R$2)'] },
+  { name: 'X-Salada', description: 'Hambúrguer, queijo, alface, tomate', price: 20, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80', category: 'lanches', adicionais: ['Queijo extra (+R$2)', 'Molho especial (+R$2)', 'Picles (+R$2)'] },
   { name: 'X-Bacon', description: 'Bacon crocante e queijo derretido', price: 24, image: 'https://images.unsplash.com/photo-1553979459-d2229ba7433b?auto=format&fit=crop&w=400&q=80', category: 'lanches', adicionais: ['Bacon extra (+R$4)', 'Cheddar (+R$3)', 'Cebola caramelizada (+R$3)'] },
-  { name: 'Hot Dog', description: 'Dogão com salsicha dupla e molho', price: 14, image: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=400&q=80', category: 'lanches', adicionais: ['Queijo ralado (+R$2)', 'Batata palha (+R$1)'] },
+  { name: 'Hot Dog', description: 'Dogão com salsicha dupla e molho', price: 14, image: 'https://playswellwithbutter.com/wp-content/uploads/2022/05/Grilled-Hot-Dogs-How-to-Grill-Hot-Dogs-38.jpg', category: 'lanches', adicionais: ['Queijo ralado (+R$2)', 'Batata palha (+R$1)'] },
 
   // Porções
-  { name: 'Batata Frita', description: 'Porção de batata crocante 300g', price: 16, image: 'https://images.unsplash.com/photo-1585238341986-08d1a863ba8c?auto=format&fit=crop&w=400&q=80', category: 'porcoes', adicionais: ['Cheddar e bacon (+R$5)', 'Maionese da casa (+R$2)'] },
-  { name: 'Onion Rings', description: 'Anéis de cebola empanados', price: 18, image: 'https://images.unsplash.com/photo-1604908177390-1c9ad3ab8cf5?auto=format&fit=crop&w=400&q=80', category: 'porcoes', adicionais: ['Molho barbecue (+R$2)'] },
-  { name: 'Frango Crocante', description: 'Tiras de frango empanadas 300g', price: 24, image: 'https://images.unsplash.com/photo-1604908177520-4025b469c698?auto=format&fit=crop&w=400&q=80', category: 'porcoes', adicionais: ['Molho de alho (+R$2)', 'Barbecue (+R$2)'] },
+  { name: 'Batata Frita', description: 'Porção de batata crocante 300g', price: 16, image: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=400&q=80', category: 'porcoes', adicionais: ['Cheddar e bacon (+R$5)', 'Maionese da casa (+R$2)'] },
+  { name: 'Onion Rings', description: 'Anéis de cebola empanados', price: 18, image: 'https://images.unsplash.com/photo-1639024471283-03518883512d?auto=format&fit=crop&w=400&q=80', category: 'porcoes', adicionais: ['Molho barbecue (+R$2)'] },
+  { name: 'Frango Crocante', description: 'Tiras de frango empanadas 300g', price: 24, image: 'https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?auto=format&fit=crop&w=400&q=80', category: 'porcoes', adicionais: ['Molho de alho (+R$2)', 'Barbecue (+R$2)'] },
 
   // Bebidas
-  { name: 'Refrigerante Lata', description: '350ml gelada', price: 7, image: 'https://images.unsplash.com/photo-1544126592-807ade215aa8?auto=format&fit=crop&w=400&q=80', category: 'bebidas', adicionais: [] },
-  { name: 'Refrigerante 2L', description: 'Para compartilhar', price: 15, image: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&w=400&q=80', category: 'bebidas', adicionais: [] },
-  { name: 'Água sem gás', description: '500ml', price: 5, image: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=400&q=80', category: 'bebidas', adicionais: [] },
-  { name: 'Água com gás', description: '500ml', price: 6, image: 'https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=400&q=80', category: 'bebidas', adicionais: [] },
-  { name: 'Cerveja long neck', description: '330ml gelada', price: 12, image: 'https://images.unsplash.com/photo-1514361892635-6e122620e4d1?auto=format&fit=crop&w=400&q=80', category: 'bebidas', adicionais: [] },
-  { name: 'Cerveja 600ml', description: 'Perfeita para dividir', price: 18, image: 'https://images.unsplash.com/photo-1514361892635-6e122620e4d1?auto=format&fit=crop&w=400&q=80', category: 'bebidas', adicionais: [] },
+  { name: 'Refrigerante Lata', description: '350ml gelada', price: 7, image: 'https://images.unsplash.com/photo-1581006852262-e4307cf6283a?auto=format&fit=crop&w=400&q=80', category: 'bebidas', adicionais: [] },
+  { name: 'Refrigerante 2L', description: 'Para compartilhar', price: 15, image: 'https://imgs.extra.com.br/1506170177/1xg.jpg', category: 'bebidas', adicionais: [] },
+  { name: 'Água sem gás', description: '500ml', price: 5, image: 'https://www.imigrantesbebidas.com.br/img/bebida/images/products/full/2893-agua-mineral-crystal-sem-gas-500ml.jpg?s=398bafb7b2c759cb3a1bbd6927c25023', category: 'bebidas', adicionais: [] },
+  { name: 'Água com gás', description: '500ml', price: 6, image: 'https://d3gdr9n5lqb5z7.cloudfront.net/fotos/308420-17-02-2023-13-21-42-947.jpg', category: 'bebidas', adicionais: [] },
+  { name: 'Cerveja long neck', description: '330ml gelada', price: 12, image: 'https://santaluzia.vteximg.com.br/arquivos/ids/963474-1000-1000/1156454.jpg?v=637384874251670000', category: 'bebidas', adicionais: [] },
+  { name: 'Cerveja 600ml', description: 'Perfeita para dividir', price: 18, image: 'https://www.falkaolanches.com.br/wp-content/uploads/2022/03/25.png', category: 'bebidas', adicionais: [] },
 ];
 
 const menu = document.getElementById('menu');
