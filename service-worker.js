@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kadu-lanches-v2';
+const CACHE_NAME = 'kadu-lanches-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -23,9 +23,24 @@ const urlsToCache = [
 ];
 
 self.addEventListener('install', event => {
+  // Força ativação imediata do novo service worker
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener('activate', event => {
+  // Remove caches antigos
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames
+          .filter(cacheName => cacheName !== CACHE_NAME)
+          .map(cacheName => caches.delete(cacheName))
+      );
+    }).then(() => self.clients.claim())
   );
 });
 
