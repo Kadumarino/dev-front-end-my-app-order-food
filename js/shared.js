@@ -98,7 +98,7 @@ function sendWhatsApp(user, payment, cart, total) {
   const scheduledOrder = JSON.parse(localStorage.getItem('scheduledOrder') || '{}');
   let scheduleText = '';
   if (scheduledOrder.scheduled) {
-    scheduleText = `\n\n⏰ *PEDIDO AGENDADO PARA ${scheduledOrder.deliveryTime.toUpperCase()}*`;
+    scheduleText = `\n\n⏰ *ENTREGA AGENDADA PARA ${scheduledOrder.deliveryTime.toUpperCase()}*\n📞 _O estabelecimento entrará em contato para confirmar o horário de entrega._`;
   }
 
   const message = `🍔 *Pedido Kadu Lanches*${scheduleText}\n\n👤 Cliente: ${sanitizedUser.nome}\n📞 Telefone: ${sanitizedUser.telefone}\n\n📝 *Itens:*\n${itemsList}\n\n💰 *Total: R$${formatPrice(total)}*\n💳 ${paymentLine}${trocoTexto}\n\n📍 Endereço: ${enderecoFormatado}`;
