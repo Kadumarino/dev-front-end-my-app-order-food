@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - app-lanches-alteracao1
+      - develop
       - master
 
 permissions:
