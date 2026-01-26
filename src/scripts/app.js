@@ -22,8 +22,8 @@ function initIndexPage() {
   // Tema
   initTheme();
 
-  // Verificar horário de funcionamento
-  checkBusinessHours();
+  // Exibir modal informativa de horário (apenas 1 vez por sessão)
+  showBusinessHoursInfoModal();
 }
 
 /**
