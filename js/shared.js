@@ -221,8 +221,10 @@ function sendWhatsApp(user, payment, cart, total) {
 document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   
-  // Verificar horário de atendimento
-  if (!checkBusinessHours()) {
+  // Verificar horário de atendimento apenas uma vez por sessão
+  const closedModalShown = sessionStorage.getItem('closedModalShown');
+  if (!checkBusinessHours() && !closedModalShown) {
     showClosedModal();
+    sessionStorage.setItem('closedModalShown', 'true');
   }
 });
