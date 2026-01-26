@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#7cb342">
+  
+  <!-- Content Security Policy -->
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline';
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src 'self' https://fonts.gstatic.com;
+    img-src 'self' https: data:;
+    connect-src 'self' https://api.whatsapp.com https://web.whatsapp.com;
+    frame-src 'none';
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+  ">
+  
+  <link rel="manifest" href="manifest.json">
+  <title>🍔 Kadu Lanches - Pagamento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+  <header class="flow-header">
+    <button class="close-flow" onclick="window.location.href='entrega.html'" aria-label="Voltar para dados de entrega">←</button>
+    <h2>💳 Forma de Pagamento</h2>
+    <button id="theme-toggle" style="background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;" aria-label="Alternar tema escuro/claro" aria-pressed="false">🌙</button>
+  </header>
+
+  <section class="flow-section">
+    <div class="flow-content">
+      <div class="payment-info">
+        <h3 style="text-align: center; margin-bottom: 20px; color: var(--text-color);">💳 Pagamento na Entrega</h3>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">Selecione a forma de pagamento:</p>
+      </div>
+      
+      <div class="payment-methods">
+        <div class="pay-card" data-method="credito" role="button" tabindex="0" aria-label="Pagar com cartão de crédito na entrega">
+          <div class="pay-title">💳 Crédito</div>
+          <p>Pagar com cartão de crédito na entrega.</p>
+        </div>
+        <div class="pay-card" data-method="debito" role="button" tabindex="0" aria-label="Pagar com cartão de débito na entrega">
+          <div class="pay-title">💳 Débito</div>
+          <p>Pagar com cartão de débito na entrega.</p>
+        </div>
+        <div class="pay-card" data-method="dinheiro" role="button" tabindex="0" aria-label="Pagar em dinheiro na entrega">
+          <div class="pay-title">💵 Dinheiro</div>
+          <p>Pagar em dinheiro na entrega.</p>
+        </div>
+        <div class="pay-card" data-method="pix" role="button" tabindex="0" aria-label="Pagar com PIX na entrega">
+          <div class="pay-title">📱 PIX</div>
+          <p>Pagar com PIX na entrega.</p>
+        </div>
+      </div>
+      
+      <div id="payment-details" class="payment-details" style="display: none;"></div>
+      
+      <div class="flow-actions">
+        <button id="finish-order" class="btn-primary">Finalizar e enviar WhatsApp</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let selectedPayment = JSON.parse(localStorage.getItem('payment')) || null;
+
+    // Selecionar forma de pagamento
+    document.querySelectorAll('.pay-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const method = card.dataset.method;
+        selectedPayment = { method };
+        localStorage.setItem('payment', JSON.stringify(selectedPayment));
+        renderPaymentDetails(method);
+        document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+      });
+    });
+
+    function renderPaymentDetails(method) {
+      const detailsDiv = document.getElementById('payment-details');
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      const total = cart.reduce((sum, item) => sum + (item.customizedPrice || item.price), 0);
+      
+      detailsDiv.style.display = 'block';
+      
+      if (method === 'dinheiro') {
+        detailsDiv.innerHTML = `
+          <label>Troco para quanto? (opcional)
+            <input type="number" id="troco" min="0" step="0.01" placeholder="Ex: 50,00">
+          </label>
+        `;
+      } else {
+        detailsDiv.innerHTML = `
+          <p style="text-align: center; color: var(--text-color); padding: 20px; background: var(--item-bg); border-radius: 8px; margin-top: 20px;">
+            ✅ A maquininha estará disponível na entrega.
+          </p>
+        `;
+      }
+    }
+
+    // Restaurar seleção anterior
+    if (selectedPayment && selectedPayment.method) {
+      const card = document.querySelector(`.pay-card[data-method="${selectedPayment.method}"]`);
+      if (card) {
+        card.classList.add('active');
+        renderPaymentDetails(selectedPayment.method);
+      }
+    }
+
+    // Finalizar pedido
+    document.getElementById('finish-order').addEventListener('click', () => {
+      const cart = JSON.parse(localStorage.getItem('cart')) || [];
+      if (cart.length === 0) {
+        alert('🛒 Adicione itens ao carrinho primeiro!');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user || !user.endereco) {
+        alert('Preencha os dados de entrega.');
+        window.location.href = 'entrega.html';
+        return;
+      }
+
+      if (!selectedPayment || !selectedPayment.method) {
+        alert('Escolha a forma de pagamento.');
+        return;
+      }
+
+      if (selectedPayment.method === 'dinheiro') {
+        const troco = document.getElementById('troco')?.value;
+        if (troco) selectedPayment.troco = troco;
+      }
+
+      localStorage.setItem('payment', JSON.stringify(selectedPayment));
+      const total = cart.reduce((sum, item) => sum + (item.customizedPrice || item.price), 0);
+      sendWhatsApp(user, selectedPayment, cart, total);
+    });
+  </script>
+  
+  <!-- Scripts: Ordem de carregamento é importante -->
+  <script src="js/config.js"></script>
+  <script src="js/security.js"></script>
+  <script src="js/notification.js"></script>
+  
+  <!-- Models -->
+  <script src="src/scripts/models/MenuItem.js"></script>
+  <script src="src/scripts/models/CartItem.js"></script>
+  <script src="src/scripts/models/User.js"></script>
+  <script src="src/scripts/models/Payment.js"></script>
+  
+  <!-- Services -->
+  <script src="src/scripts/services/Store.js"></script>
+  
+  <!-- Controllers -->
+  <script src="src/scripts/controllers/PaymentController.js"></script>
+  
+  <!-- App Init -->
+  <script src="src/scripts/app.js"></script>
+</body>
+</html>
