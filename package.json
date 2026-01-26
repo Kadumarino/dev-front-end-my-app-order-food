@@ -1,0 +1,31 @@
+{
+  "name": "kadu-lanches",
+  "version": "1.0.0",
+  "description": "Sistema de pedidos online - Kadu Lanches",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,html,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,html,md}\"",
+    "prepare": "node -e \"try { require('husky').install() } catch (e) {}\""
+  },
+  "keywords": [
+    "food",
+    "delivery",
+    "pwa",
+    "restaurant"
+  ],
+  "author": "Kadu Lanches",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.4",
+    "husky": "^8.0.3"
+  },
+  "engines": {
+    "node": ">=20.11.0",
+    "npm": ">=10.0.0"
+  }
+}
