@@ -14,10 +14,19 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 - EditorConfig para consistência de código
 - ESLint e Prettier para qualidade de código
 - nvmrc para versão consistente do Node.js
+- **[SEGURANÇA]** Módulo `security-enhanced.js` com criptografia, rate limiting e sanitização
+- **[SEGURANÇA]** Módulo `storage.js` para migração segura de localStorage → sessionStorage
+- **[DOCS]** Guia completo de segurança em `SECURITY.md`
 
 ### Modificado
 - Validações do formulário de entrega com mensagens contextuais
 - Sistema de mensagens de erro diferenciadas (formato vs completude)
+- **[SEGURANÇA CRÍTICA]** CSP removeu `'unsafe-inline'` de script-src e style-src em todos os HTMLs
+- **[SEGURANÇA]** Event handlers inline (`onclick`) substituídos por `addEventListener`
+- **[SEGURANÇA]** Preparado sistema de migração de dados sensíveis com criptografia
+
+### Removido
+- **[SEGURANÇA]** Atributos `onclick` inline (entrega.html, pagamento.html)
 
 ## [1.0.0] - 2026-01-26
 

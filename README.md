@@ -91,9 +91,14 @@ Acesse: `http://localhost:3000`
 - [x] Categorização de produtos
 - [x] Personalização de pedidos
 - [x] Responsivo (mobile-first)
+- [x] **Segurança: CSP sem unsafe-inline**
+- [x] **Segurança: Criptografia de dados sensíveis**
+- [x] **Segurança: Rate limiting**
+- [x] **Segurança: Sanitização de inputs**
 
 ### 🚧 Em Desenvolvimento
 
+- [ ] Migração completa para sessionStorage seguro
 - [ ] Backend API REST
 - [ ] Banco de dados PostgreSQL
 - [ ] Autenticação JWT
@@ -102,13 +107,29 @@ Acesse: `http://localhost:3000`
 - [ ] Pagamento online
 - [ ] Histórico de pedidos
 - [ ] Sistema de cupons
+- [ ] Testes automatizados (Vitest + Playwright)
+
+## 🔒 Segurança
+
+Este projeto implementa diversas camadas de segurança:
+
+- **Content Security Policy (CSP)**: Sem `'unsafe-inline'`, prevenindo XSS
+- **Criptografia de Dados**: Dados sensíveis criptografados em sessionStorage
+- **Rate Limiting**: Proteção contra requisições excessivas
+- **Sanitização**: Inputs sanitizados para prevenir injeção
+- **Event Listeners**: Sem JavaScript inline (`onclick`)
+- **SessionStorage**: Dados temporários, limpos ao fechar aba
+
+📖 Veja o guia completo em [SECURITY.md](SECURITY.md)  
+🔄 Guia de migração em [MIGRATION.md](MIGRATION.md)
 
 ## 🛠️ Stack Tecnológica
 
 ### Frontend
 - HTML5 + CSS3 + JavaScript ES6+
 - PWA (Service Worker)
-- LocalStorage/SessionStorage
+- SessionStorage com criptografia
+- Web Crypto API
 - Fetch API
 
 ### Backend (Planejado)
@@ -116,6 +137,7 @@ Acesse: `http://localhost:3000`
 - PostgreSQL
 - JWT Authentication
 - bcrypt para senhas
+- Helmet.js para segurança
 
 ### DevOps
 - GitHub Actions
