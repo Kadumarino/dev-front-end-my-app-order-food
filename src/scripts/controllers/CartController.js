@@ -178,8 +178,172 @@ class CartController {
       return;
     }
 
-    // Redirecionar para página de entrega
-    window.location.href = 'entrega.html';
+    // Verificar horário e exibir modal de confirmação
+    this.showScheduleConfirmationModal();
+  }
+
+  /**
+   * Exibe modal de confirmação de agendamento
+   */
+  showScheduleConfirmationModal() {
+    const isOpen = this.checkBusinessHours();
+    
+    if (isOpen) {
+      // Se estiver aberto, vai direto para entrega
+      window.location.href = 'entrega.html';
+      return;
+    }
+
+    // Calcular próximo horário de atendimento
+    const scheduleInfo = this.getNextAvailableTime();
+    
+    // Criar modal
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.id = 'schedule-modal';
+    modal.style.display = 'flex';
+    
+    modal.innerHTML = `
+      <div class="modal-content" style="max-width: 500px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="font-size: 48px; margin-bottom: 10px;">🕒</div>
+          <h2 style="margin: 0 0 10px; color: #333;">Horário de Atendimento</h2>
+        </div>
+        
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <p style="margin: 0 0 10px; font-weight: 600; color: #333;">📅 Horários de funcionamento:</p>
+          <ul style="margin: 0; padding-left: 20px; color: #666;">
+            <li><strong>Sexta-feira:</strong> 18h às 00h</li>
+            <li><strong>Sábado:</strong> 15h às 00h</li>
+            <li><strong>Domingo:</strong> 15h às 00h</li>
+          </ul>
+          <p style="margin: 15px 0 0; color: #ff9800; font-weight: 600;">
+            ⚠️ De segunda a quinta não atendemos
+          </p>
+        </div>
+
+        <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800; margin-bottom: 20px;">
+          <p style="margin: 0; color: #856404; font-weight: 500;">
+            📦 Seu pedido será <strong>agendado para ${scheduleInfo}</strong>
+          </p>
+        </div>
+
+        <label style="display: flex; align-items: start; gap: 10px; margin-bottom: 20px; cursor: pointer; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 2px solid #dee2e6;">
+          <input type="checkbox" id="accept-schedule" style="margin-top: 3px; width: 18px; height: 18px; cursor: pointer;">
+          <span style="font-size: 14px; color: #495057; line-height: 1.5;">
+            Eu entendo e aceito que meu pedido será entregue apenas no próximo horário de atendimento.
+          </span>
+        </label>
+
+        <div style="display: flex; gap: 10px;">
+          <button id="cancel-schedule" class="btn-secondary" style="flex: 1;">
+            Cancelar
+          </button>
+          <button id="confirm-schedule" class="btn-primary" style="flex: 1; opacity: 0.5;" disabled>
+            Confirmar Pedido
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Event listeners
+    const checkbox = document.getElementById('accept-schedule');
+    const confirmBtn = document.getElementById('confirm-schedule');
+    const cancelBtn = document.getElementById('cancel-schedule');
+    
+    checkbox.addEventListener('change', (e) => {
+      confirmBtn.disabled = !e.target.checked;
+      confirmBtn.style.opacity = e.target.checked ? '1' : '0.5';
+      confirmBtn.style.cursor = e.target.checked ? 'pointer' : 'not-allowed';
+    });
+    
+    confirmBtn.addEventListener('click', () => {
+      if (checkbox.checked) {
+        // Salvar informação de agendamento
+        localStorage.setItem('scheduledOrder', JSON.stringify({
+          scheduled: true,
+          deliveryTime: scheduleInfo,
+          timestamp: new Date().toISOString()
+        }));
+        modal.remove();
+        window.location.href = 'entrega.html';
+      }
+    });
+    
+    cancelBtn.addEventListener('click', () => {
+      modal.remove();
+    });
+    
+    // Fechar ao clicar fora
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.remove();
+      }
+    });
+  }
+
+  /**
+   * Verifica horário de funcionamento
+   */
+  checkBusinessHours() {
+    const now = new Date();
+    const day = now.getDay();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const currentTime = hours * 60 + minutes;
+
+    let isOpen = false;
+
+    if (day === 5) {
+      // Sexta: 18:00 às 00:00
+      isOpen = currentTime >= 18 * 60;
+    } else if (day === 6) {
+      // Sábado: 15:00 às 00:00
+      isOpen = currentTime >= 15 * 60;
+    } else if (day === 0) {
+      // Domingo: 15:00 às 00:00
+      isOpen = currentTime >= 15 * 60;
+    }
+
+    return isOpen;
+  }
+
+  /**
+   * Retorna próximo horário disponível
+   */
+  getNextAvailableTime() {
+    const now = new Date();
+    const day = now.getDay();
+    const hours = now.getHours();
+    
+    // Se for sexta e antes das 18h
+    if (day === 5 && hours < 18) {
+      return 'hoje às 18h';
+    }
+    
+    // Se for sábado e antes das 15h
+    if (day === 6 && hours < 15) {
+      return 'hoje às 15h';
+    }
+    
+    // Se for domingo e antes das 15h
+    if (day === 0 && hours < 15) {
+      return 'hoje às 15h';
+    }
+    
+    // Calcular próxima sexta
+    let daysUntilFriday = (5 - day + 7) % 7;
+    if (daysUntilFriday === 0) daysUntilFriday = 7;
+    
+    if (daysUntilFriday === 1) {
+      return 'amanhã às 18h';
+    } else if (daysUntilFriday === 2) {
+      return 'sexta-feira às 18h';
+    } else {
+      return `próxima sexta-feira às 18h`;
+    }
   }
 
   /**

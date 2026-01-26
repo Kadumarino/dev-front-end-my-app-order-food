@@ -200,7 +200,17 @@ function sendWhatsApp(user, payment, cart, total) {
     telefone: sanitizeText(user.telefone || 'Não informado')
   };
 
-  const message = `🍔 *Pedido Kadu Lanches*\n\n👤 Cliente: ${sanitizedUser.nome}\n📞 Telefone: ${sanitizedUser.telefone}\n\n📝 *Itens:*\n${itemsList}\n\n💰 *Total: R$${formatPrice(total)}*\n💳 ${paymentLine}${trocoTexto}\n\n📍 Endereço: ${enderecoFormatado}`;
+  // Verificar se é pedido agendado
+  const scheduledOrder = JSON.parse(localStorage.getItem('scheduledOrder') || '{}');
+  let scheduleText = '';
+  if (scheduledOrder.scheduled) {
+    scheduleText = `\n\n⏰ *PEDIDO AGENDADO PARA ${scheduledOrder.deliveryTime.toUpperCase()}*`;
+  }
+
+  const message = `🍔 *Pedido Kadu Lanches*${scheduleText}\n\n👤 Cliente: ${sanitizedUser.nome}\n📞 Telefone: ${sanitizedUser.telefone}\n\n📝 *Itens:*\n${itemsList}\n\n💰 *Total: R$${formatPrice(total)}*\n💳 ${paymentLine}${trocoTexto}\n\n📍 Endereço: ${enderecoFormatado}`;
+
+  // Limpar informação de agendamento após criar mensagem
+  localStorage.removeItem('scheduledOrder');
 
   // Usar configuração centralizada
   const whatsappNumber = CONFIG.whatsapp.number;
@@ -228,10 +238,31 @@ function sendWhatsApp(user, payment, cart, total) {
 document.addEventListener('DOMContentLoaded', () => {
   initDarkMode();
   
-  // Verificar horário de atendimento apenas uma vez por sessão
-  const closedModalShown = sessionStorage.getItem('closedModalShown');
-  if (!checkBusinessHours() && !closedModalShown) {
-    showClosedModal();
-    sessionStorage.setItem('closedModalShown', 'true');
-  }
+  // Exibir aviso de horário apenas como informação (não bloqueia)
+  showBusinessHoursInfo();
 });
+
+// Exibe informação sobre horário de funcionamento
+function showBusinessHoursInfo() {
+  if (!checkBusinessHours()) {
+    // Criar banner informativo no topo da página
+    const banner = document.createElement('div');
+    banner.id = 'hours-info-banner';
+    banner.style.cssText = `
+      background: linear-gradient(135deg, #ff9800, #f57c00);
+      color: white;
+      padding: 12px 20px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    `;
+    banner.innerHTML = `
+      🕒 Estamos fora do horário de atendimento. Pedidos serão entregues a partir das 18h (sexta) ou 15h (sábado/domingo).
+    `;
+    document.body.insertBefore(banner, document.body.firstChild);
+  }
+}
