@@ -12,7 +12,7 @@ function checkBusinessHours() {
 
   if (day === 5) {
     // Sexta: 18:00 às 00:00
-    isOpen = currentTime >= 15 * 60; // A partir das 18:00
+    isOpen = currentTime >= 18 * 60; // A partir das 18:00
   } else if (day === 6) {
     // Sábado: 15:00 às 00:00
     isOpen = currentTime >= 15 * 60; // A partir das 15:00
