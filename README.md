@@ -208,7 +208,10 @@ Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
 
 ## 📜 Licença
 
-Este projeto está sob a licença MIT. Veja [LICENSE](LICENSE) para mais detalhes.
+
+Este projeto está licenciado sob a Licença MIT. Você pode usar, copiar, modificar, mesclar, publicar, distribuir, sublicenciar e/ou vender cópias do software, desde que mantenha o aviso de copyright.
+
+Consulte o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
