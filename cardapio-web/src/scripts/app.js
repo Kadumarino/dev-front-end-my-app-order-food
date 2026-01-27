@@ -145,7 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Registrar service worker com auto-atualização (apenas em HTTP/HTTPS)
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
-    navigator.serviceWorker.register('/service-worker.js')
+    // Ajusta o caminho para funcionar tanto em local quanto no GitHub Pages
+    const swPath = window.location.hostname === 'kadumarino.github.io' 
+      ? '/app-kadu-lanches/service-worker.js'
+      : '/service-worker.js';
+    
+    navigator.serviceWorker.register(swPath)
       .then(registration => {
         console.log('Service Worker registrado com sucesso');
         
