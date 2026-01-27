@@ -183,30 +183,13 @@ function renderPaymentDetails(method) {
 
 // Finalizar pedido
 document.getElementById('finish-order').addEventListener('click', () => {
-    // ===== LOGS DETALHADOS DO CARRINHO =====
-    console.log('🎯 [PAGAMENTO] Botão Finalizar clicado!');
-    
-    // Verifica ambos os storages
-    const cartLocalStorage = localStorage.getItem('cart');
-    const cartSessionStorage = sessionStorage.getItem('cart');
-    
-    console.log('📦 [PAGAMENTO] localStorage.cart:', cartLocalStorage);
-    console.log('📦 [PAGAMENTO] sessionStorage.cart:', cartSessionStorage);
-    
     // Lê do localStorage (onde o carrinho é realmente salvo)
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     
-    console.log('🛒 [PAGAMENTO] Carrinho parseado:', cart);
-    console.log('📊 [PAGAMENTO] Quantidade de itens:', cart.length);
-    
     if (!cart || cart.length === 0) {
-        console.error('❌ [PAGAMENTO] Carrinho está vazio!');
         alert('Seu carrinho está vazio!');
         return;
     }
-    
-    console.log('✅ [PAGAMENTO] Carrinho válido, continuando...');
-    // =======================================
     
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user.endereco) {
