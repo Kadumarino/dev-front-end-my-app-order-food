@@ -65,9 +65,32 @@ class CartController {
 
     // Adicionar event listeners
     cart.forEach((item, index) => {
+      const toggleBtn = document.getElementById(`toggle-${index}`);
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', (e) => {
+          const cartItem = e.currentTarget.closest('.cart-item');
+          const isCollapsed = cartItem.dataset.collapsed === 'true';
+          const icon = cartItem.querySelector('.toggle-icon');
+          
+          cartItem.dataset.collapsed = !isCollapsed;
+          icon.textContent = isCollapsed ? '▲' : '▼';
+        });
+      }
+
+      const editBtn = document.getElementById(`edit-${index}`);
+      if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Impede que o clique expanda/recolha o item
+          this.editItem(item);
+        });
+      }
+
       const removeBtn = document.getElementById(`remove-${index}`);
       if (removeBtn) {
-        removeBtn.addEventListener('click', () => this.removeItem(item.id));
+        removeBtn.addEventListener('click', (e) => {
+          e.stopPropagation(); // Impede que o clique expanda/recolha o item
+          this.removeItem(item.id);
+        });
       }
 
       const decreaseBtn = document.getElementById(`decrease-${index}`);
@@ -89,32 +112,52 @@ class CartController {
    * @returns {string}
    */
   createCartItemHTML(item, index) {
+    // Buscar detalhes dos extras selecionados
+    let extrasText = '';
+    if (item.selectedExtras.length > 0) {
+      const menuItem = this.store.getState().menuItems.find(mi => mi.id === item.menuItemId);
+      if (menuItem && menuItem.extras) {
+        const extrasNames = item.selectedExtras
+          .map(extraId => {
+            const extra = menuItem.extras.find(e => e.id === extraId);
+            return extra ? extra.name : null;
+          })
+          .filter(name => name);
+        
+        if (extrasNames.length > 0) {
+          extrasText = '+ ' + extrasNames.join(' + ');
+        }
+      }
+    }
+    
+    // Definir nome a ser exibido no cabeçalho
+    const fullName = item.personName || 'Sem Nome';
+    const displayName = fullName.length > 12 ? fullName.substring(0, 12) + '...' : fullName;
+    
     return `
-      <li class="cart-item">
-        <div class="cart-item-info">
-          <strong>${item.name}</strong>
-          <span class="cart-item-price">${item.getFormattedPrice()}</span>
-          ${item.selectedExtras.length > 0 ? `
-            <div class="cart-extras">
-              <small>+ ${item.selectedExtras.length} adicional(is)</small>
-            </div>
-          ` : ''}
-          ${item.observation ? `
-            <div class="cart-observation">
-              <small>Obs: ${sanitizeText(item.observation)}</small>
-            </div>
-          ` : ''}
-        </div>
-        <div class="cart-item-actions">
-          <div class="quantity-controls">
-            <button class="btn-icon" id="decrease-${index}">−</button>
-            <span class="quantity">${item.quantity}</span>
-            <button class="btn-icon" id="increase-${index}">+</button>
+      <li class="cart-item" data-collapsed="true">
+        <div class="cart-item-header">
+          <div class="cart-item-summary" id="toggle-${index}">
+            <strong class="cart-item-name" title="${fullName}">${displayName} <span class="item-qty">x${item.quantity}</span></strong>
+            <span class="toggle-icon">▼</span>
           </div>
-          <button class="btn-icon remove-btn" id="remove-${index}">🗑️</button>
+          <div class="cart-item-buttons">
+            <button class="btn-icon edit-btn" id="edit-${index}" title="Editar item">✏️</button>
+            <button class="btn-icon remove-btn" id="remove-${index}" title="Remover item">🗑️</button>
+          </div>
         </div>
-        <div class="cart-item-subtotal">
-          Subtotal: ${item.getFormattedSubtotal()}
+        <div class="cart-item-details">
+          <div class="cart-item-product">📦 ${item.name}</div>
+          ${extrasText ? `<div class="cart-extras">${extrasText}</div>` : ''}
+          ${item.observation ? `<div class="cart-observation">OBS: ${sanitizeText(item.observation)}</div>` : ''}
+          <div class="cart-item-actions">
+            <div class="quantity-controls">
+              <button class="btn-icon" id="decrease-${index}">−</button>
+              <span class="quantity">${item.quantity}</span>
+              <button class="btn-icon" id="increase-${index}">+</button>
+            </div>
+            <div class="cart-item-price-detail">${item.getFormattedSubtotal()}</div>
+          </div>
         </div>
       </li>
     `;
@@ -125,8 +168,31 @@ class CartController {
    * @param {string} itemId
    */
   removeItem(itemId) {
-    if (confirm('Remover este item do carrinho?')) {
-      this.store.removeFromCart(itemId);
+    this.store.removeFromCart(itemId);
+  }
+
+  /**
+   * Edita item do carrinho
+   * @param {CartItem} cartItem
+   */
+  editItem(cartItem) {
+    console.log('Editando item:', cartItem);
+    
+    // Buscar item do menu original
+    const menuItem = this.store.getState().menuItems.find(mi => mi.id === cartItem.menuItemId);
+    if (!menuItem) {
+      alert('Erro: Item não encontrado no cardápio');
+      return;
+    }
+
+    console.log('MenuItem encontrado:', menuItem);
+    console.log('MenuController disponível:', window.menuController);
+
+    // Abrir modal de edição com dados preenchidos
+    if (window.menuController) {
+      window.menuController.openEditModal(menuItem, cartItem);
+    } else {
+      alert('Erro: Sistema de edição não está disponível. Recarregue a página.');
     }
   }
 
@@ -166,6 +232,9 @@ class CartController {
   proceedToCheckout() {
     const cart = this.store.getState().cart;
     
+    console.log('🛒 Verificando carrinho:', cart);
+    console.log('📊 Quantidade de itens:', cart.length);
+    
     if (cart.length === 0) {
       alert('🛒 Adicione itens ao carrinho primeiro!');
       return;
@@ -173,6 +242,8 @@ class CartController {
 
     // Validar total mínimo
     const total = this.store.getCartTotal();
+    console.log('💰 Total do carrinho:', total);
+    
     if (total < CONFIG.delivery.minimumOrder) {
       alert(`Pedido mínimo: R$ ${CONFIG.delivery.minimumOrder.toFixed(2).replace('.', ',')}`);
       return;
@@ -187,6 +258,10 @@ class CartController {
    */
   showScheduleConfirmationModal() {
     const isOpen = this.checkBusinessHours();
+    
+    console.log('🕒 Estabelecimento aberto?', isOpen);
+    console.log('🛒 Carrinho antes de navegar:', this.store.getState().cart);
+    console.log('📦 localStorage cart:', localStorage.getItem('cart'));
     
     if (isOpen) {
       // Se estiver aberto, vai direto para entrega
@@ -274,6 +349,10 @@ class CartController {
           deliveryTime: scheduleInfo,
           timestamp: new Date().toISOString()
         }));
+        
+        console.log('✅ Pedido agendado, navegando para entrega.html');
+        console.log('🛒 Carrinho no localStorage:', localStorage.getItem('cart'));
+        
         modal.remove();
         window.location.href = 'entrega.html';
       }

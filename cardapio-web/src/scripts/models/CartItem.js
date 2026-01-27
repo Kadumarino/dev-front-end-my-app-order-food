@@ -13,6 +13,7 @@ class CartItem {
     this.selectedExtras = data.selectedExtras || [];
     this.observation = data.observation || '';
     this.customizedPrice = data.customizedPrice || data.price;
+    this.personName = data.personName || ''; // Nome da pessoa
   }
 
   /**
@@ -78,7 +79,8 @@ class CartItem {
       quantity: this.quantity,
       selectedExtras: this.selectedExtras,
       observation: this.observation,
-      customizedPrice: this.customizedPrice
+      customizedPrice: this.customizedPrice,
+      personName: this.personName
     };
   }
 

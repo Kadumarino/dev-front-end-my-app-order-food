@@ -76,9 +76,33 @@ function formatPrice(value) {
 function sendWhatsApp(user, payment, cart, total) {
   const itemsList = cart.map(i => {
     const price = i.customizedPrice || i.price;
-    const extras = i.adicionais && i.adicionais.length ? ` (${i.adicionais.join(', ')})` : '';
-    const obs = i.observacao ? `\n  Obs: ${i.observacao}` : '';
-    return `• ${i.name} - R$${formatPrice(price)}${extras}${obs}`;
+    
+    // Definir quem pediu (nome da pessoa ou "Sem Nome")
+    const personName = i.personName || 'Sem Nome';
+    
+    // Montar lista de adicionais apenas com nomes (sem valores)
+    let extras = '';
+    if (i.selectedExtras && i.selectedExtras.length > 0) {
+      // Buscar nomes dos extras do menu original
+      const menuData = JSON.parse(sessionStorage.getItem('menuData') || '[]');
+      const menuItem = menuData.find(item => item.id === i.menuItemId);
+      
+      if (menuItem && menuItem.extras) {
+        const extrasNames = i.selectedExtras
+          .map(extraId => {
+            const extra = menuItem.extras.find(e => e.id === extraId);
+            return extra ? extra.name : null;
+          })
+          .filter(name => name);
+        
+        if (extrasNames.length > 0) {
+          extras = ` (${extrasNames.join(', ')})`;
+        }
+      }
+    }
+    
+    const obs = i.observation ? `\n  Obs: ${i.observation}` : '';
+    return `• ${personName} - ${i.name}${extras} - R$${formatPrice(price)}${obs}`;
   }).join('\n');
 
   const enderecoFormatado = formatEndereco(user.endereco);
@@ -100,20 +124,109 @@ function sendWhatsApp(user, payment, cart, total) {
     telefone: sanitizeText(user.telefone || 'Não informado')
   };
 
-  // Verificar se é pedido agendado
-  const scheduledOrder = JSON.parse(localStorage.getItem('scheduledOrder') || '{}');
-  let scheduleSection = '';
-  if (scheduledOrder.scheduled) {
-    // Obter dia da semana
-    const now = new Date();
-    const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-    const diasSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
-    const diaSemana = diasSemana[brasiliaTime.getDay()];
-    
-    scheduleSection = `\n\n🕒 *ENTREGA AGENDADA*\nSua entrega estará agendada para *${diaSemana}* após as 18 horas\n📞 _O estabelecimento entrará em contato_`;
+  // Verificar se estabelecimento está aberto e criar seção de agendamento
+  const now = new Date();
+  const brasiliaTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const day = brasiliaTime.getDay();
+  const hours = brasiliaTime.getHours();
+  const minutes = brasiliaTime.getMinutes();
+  const currentTime = hours * 60 + minutes;
+  
+  let isOpen = false;
+  if (day === 5) { // Sexta
+    isOpen = currentTime >= (18 * 60);
+  } else if (day === 6 || day === 0) { // Sábado ou Domingo
+    isOpen = currentTime >= (15 * 60);
   }
+  
+  console.log('🕒 Status do estabelecimento:', { day, hours, minutes, isOpen, currentTime });
+  
+  let scheduleSection = '';
+  const scheduledOrder = JSON.parse(localStorage.getItem('scheduledOrder') || '{}');
+  const diasSemana = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+  let diaPedido = '';
+  let horario = '';
+  
+  // Determinar próximo dia de funcionamento quando fechado
+  if (!isOpen || scheduledOrder.scheduled) {
+    if (day === 5 && hours < 18) {
+      diaPedido = 'Sexta-feira';
+      horario = '18h';
+    } else if (day === 6 && hours < 15) {
+      diaPedido = 'Sábado';
+      horario = '15h';
+    } else if (day === 0 && hours < 15) {
+      diaPedido = 'Domingo';
+      horario = '15h';
+    } else if (day === 5 && hours >= 18) {
+      diaPedido = 'Sábado';
+      horario = '15h';
+    } else if (day === 6 && hours >= 15) {
+      diaPedido = 'Domingo';
+      horario = '15h';
+    } else if (day === 0 && hours >= 15) {
+      diaPedido = 'próxima Sexta-feira';
+      horario = '18h';
+    } else {
+      // Segunda a quinta: próxima sexta
+      diaPedido = 'Sexta-feira';
+      horario = '18h';
+    }
+    
+    if (!isOpen) {
+      scheduleSection = `
 
-  const message = `🍔 *Pedido Kadu Lanches*\n\n👤 *Cliente:* ${sanitizedUser.nome}\n📞 *Telefone:* ${sanitizedUser.telefone}\n\n📝 *Itens:*\n${itemsList}\n\n💰 *Total: R$${formatPrice(total)}*\n💳 ${paymentLine}${trocoTexto}\n\n📍 *Endereço:* ${enderecoFormatado}${scheduleSection}`;
+⏰ *ESTABELECIMENTO FECHADO*
+📅 Pedido será realizado em *${diaPedido}* após as ${horario}
+📞 _O estabelecimento entrará em contato para confirmar o pedido_`;
+      console.log('📝 Mensagem criada (FECHADO):', scheduleSection);
+      console.log('📝 Variáveis:', { diaPedido, horario, isOpen });
+    } else if (scheduledOrder.scheduled) {
+      scheduleSection = `
+
+🕒 *ENTREGA AGENDADA*
+📅 Entrega agendada para *${diasSemana[day]}* após as 18h
+📞 _O estabelecimento entrará em contato_`;
+      console.log('📝 Mensagem criada (AGENDADO):', scheduleSection);
+    }
+  }
+  
+  // Determinar saudação baseada no horário
+  let saudacao = '';
+  let periodo = '';
+  if (hours >= 0 && hours < 12) {
+    saudacao = 'Bom dia';
+    periodo = 'dia';
+  } else if (hours >= 12 && hours < 18) {
+    saudacao = 'Boa tarde';
+    periodo = 'tarde';
+  } else {
+    saudacao = 'Boa noite';
+    periodo = 'noite';
+  }
+  
+  console.log('📝 scheduleSection ANTES de criar message:', scheduleSection);
+
+  const message = `${saudacao}! 👋
+_Que bom que nos escolheu para memorar o seu ${periodo}_
+
+🍔 *Pedido Kadu Lanches*
+
+👤 *Cliente:* ${sanitizedUser.nome}
+📞 *Telefone:* ${sanitizedUser.telefone}
+
+📝 *Itens:*
+${itemsList}
+
+💰 *Total: R$${formatPrice(total)}*
+💳 ${paymentLine}${trocoTexto}
+
+📍 *Endereço:* ${enderecoFormatado}${scheduleSection}`;
+
+  console.log('📱 Mensagem completa WhatsApp:');
+  console.log(message);
+  console.log('📱 Tamanho da mensagem:', message.length);
+  console.log('📱 URL encoded:', encodeURIComponent(message).substring(0, 200) + '...');
 
   // Limpar informação de agendamento após criar mensagem
   localStorage.removeItem('scheduledOrder');

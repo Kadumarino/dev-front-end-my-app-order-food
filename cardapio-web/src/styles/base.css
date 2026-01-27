@@ -3,6 +3,45 @@
    Tipografia, body, containers
    =============================================== */
 
+/* Previne FOUT - Flash of Unstyled Text */
+/* Garante que o texto só apareça quando a fonte estiver carregada */
+html {
+  font-family: 'Quicksand', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* Font loading optimization */
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Quicksand');
+}
+
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Quicksand Medium');
+}
+
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Quicksand SemiBold');
+}
+
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Quicksand Bold');
+}
+
 body {
   font-family: var(--font-family);
   -webkit-font-smoothing: antialiased;
@@ -14,6 +53,8 @@ body {
   position: relative;
   font-size: var(--font-size-base);
   line-height: 1.5;
+  /* Garante visibilidade do texto durante carregamento */
+  visibility: visible;
 }
 
 /* Tipografia */

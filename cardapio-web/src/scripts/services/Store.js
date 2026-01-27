@@ -122,6 +122,28 @@ class Store {
   }
 
   /**
+   * Atualiza item completo do carrinho
+   * @param {string} itemId
+   * @param {Object} updates - Objeto com campos a atualizar
+   */
+  updateCartItem(itemId, updates) {
+    const index = this.state.cart.findIndex(item => item.id === itemId);
+    if (index !== -1) {
+      const item = this.state.cart[index];
+      
+      // Atualizar campos
+      if (updates.quantity !== undefined) item.quantity = updates.quantity;
+      if (updates.selectedExtras !== undefined) item.selectedExtras = updates.selectedExtras;
+      if (updates.observation !== undefined) item.observation = updates.observation;
+      if (updates.customizedPrice !== undefined) item.customizedPrice = updates.customizedPrice;
+      if (updates.personName !== undefined) item.personName = updates.personName;
+      
+      this.saveToStorage();
+      this.notify();
+    }
+  }
+
+  /**
    * Limpa carrinho
    */
   clearCart() {
