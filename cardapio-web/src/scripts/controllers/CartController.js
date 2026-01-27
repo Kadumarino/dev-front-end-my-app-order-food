@@ -6,6 +6,7 @@
 class CartController {
   constructor(store) {
     this.store = store;
+    this.expandedItems = new Set(); // Armazena IDs dos itens expandidos
   }
 
   /**
@@ -65,6 +66,17 @@ class CartController {
 
     // Adicionar event listeners
     cart.forEach((item, index) => {
+      // Restaurar estado de expansão
+      const cartItemElement = document.querySelector(`[data-item-id="${item.id}"]`);
+      if (cartItemElement) {
+        const isExpanded = this.expandedItems.has(item.id);
+        cartItemElement.dataset.collapsed = isExpanded ? 'false' : 'true';
+        const icon = cartItemElement.querySelector('.toggle-icon');
+        if (icon) {
+          icon.textContent = isExpanded ? '▲' : '▼';
+        }
+      }
+
       const toggleBtn = document.getElementById(`toggle-${index}`);
       if (toggleBtn) {
         toggleBtn.addEventListener('click', (e) => {
@@ -74,6 +86,13 @@ class CartController {
           
           cartItem.dataset.collapsed = !isCollapsed;
           icon.textContent = isCollapsed ? '▲' : '▼';
+          
+          // Atualizar set de itens expandidos
+          if (!isCollapsed) {
+            this.expandedItems.delete(item.id);
+          } else {
+            this.expandedItems.add(item.id);
+          }
         });
       }
 
@@ -95,12 +114,20 @@ class CartController {
 
       const decreaseBtn = document.getElementById(`decrease-${index}`);
       if (decreaseBtn) {
-        decreaseBtn.addEventListener('click', () => this.decreaseQuantity(item.id));
+        decreaseBtn.addEventListener('click', (e) => {
+          console.log('🔽 DECREASE clicked - item:', item.id, 'index:', index);
+          e.stopPropagation(); // Impede que o clique recolha o item
+          this.decreaseQuantity(item.id);
+        });
       }
 
       const increaseBtn = document.getElementById(`increase-${index}`);
       if (increaseBtn) {
-        increaseBtn.addEventListener('click', () => this.increaseQuantity(item.id));
+        increaseBtn.addEventListener('click', (e) => {
+          console.log('🔼 INCREASE clicked - item:', item.id, 'index:', index);
+          e.stopPropagation(); // Impede que o clique recolha o item
+          this.increaseQuantity(item.id);
+        });
       }
     });
   }
@@ -135,7 +162,7 @@ class CartController {
     const displayName = fullName.length > 12 ? fullName.substring(0, 12) + '...' : fullName;
     
     return `
-      <li class="cart-item" data-collapsed="true">
+      <li class="cart-item" data-collapsed="true" data-item-id="${item.id}">
         <div class="cart-item-header">
           <div class="cart-item-summary" id="toggle-${index}">
             <strong class="cart-item-name" title="${fullName}">${displayName} <span class="item-qty">x${item.quantity}</span></strong>
