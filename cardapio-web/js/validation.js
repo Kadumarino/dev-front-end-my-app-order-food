@@ -216,11 +216,11 @@ function validateName(value) {
   }
   
   // Deve ter pelo menos 3 caracteres
-  if (value.length < 3) return false;
+  if (value.trim().length < 3) return false;
   
   // Apenas letras, espaços e acentos
   const regex = /^[a-zA-ZÀ-ÿ\s]+$/;
-  return regex.test(value);
+  return regex.test(value.trim());
 }
 
 /**
