@@ -1,0 +1,195 @@
+// ===============================================
+// SCRIPT DO FORMULÁRIO DE PAGAMENTO
+// ===============================================
+
+// Event listener para botão voltar
+document.getElementById('btn-voltar').addEventListener('click', () => {
+  window.location.href = 'entrega.html';
+});
+
+let selectedPayment = JSON.parse(localStorage.getItem('payment')) || null;
+
+// Selecionar forma de pagamento
+document.querySelectorAll('.pay-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const method = card.dataset.method;
+    console.log('💳 Método selecionado:', method);
+    selectedPayment = { method };
+    localStorage.setItem('payment', JSON.stringify(selectedPayment));
+    renderPaymentDetails(method);
+    document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+  });
+});
+
+function renderPaymentDetails(method) {
+  const detailsDiv = document.getElementById('payment-details');
+  console.log('📝 Elemento payment-details:', detailsDiv);
+  
+  if (!detailsDiv) {
+    console.error('❌ Elemento payment-details não encontrado!');
+    return;
+  }
+  
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const total = cart.reduce((sum, item) => sum + (item.customizedPrice || item.price), 0);
+  
+  console.log('💰 Total:', total);
+  console.log('🎯 Renderizando detalhes para:', method);
+  
+  detailsDiv.classList.add('show');
+  
+  if (method === 'dinheiro') {
+    detailsDiv.innerHTML = `
+      <label>Troco para quanto? (opcional)
+        <input type="text" id="troco" inputmode="decimal" placeholder="R$ 50,00" maxlength="10">
+        <span id="troco-error" style="color: #dc3545; font-size: 0.875rem; margin-top: 4px; display: none;"></span>
+      </label>
+    `;
+    
+    // Adicionar validação e formatação ao campo troco
+    setTimeout(() => {
+      const trocoInput = document.getElementById('troco');
+      const trocoError = document.getElementById('troco-error');
+      
+      if (!trocoInput) return;
+      
+      // Função para formatar como moeda
+      function formatMoney(value) {
+        // Remove tudo exceto números
+        value = value.replace(/\D/g, '');
+        
+        // Converte para número e divide por 100
+        value = (parseInt(value) / 100).toFixed(2);
+        
+        // Formata para padrão brasileiro
+        value = value.replace('.', ',');
+        
+        return 'R$ ' + value;
+      }
+      
+      trocoInput.addEventListener('input', (e) => {
+        let value = e.target.value;
+        
+        // Remove o R$ se existir
+        value = value.replace('R$', '').trim();
+        
+        // Se está vazio, limpa
+        if (value === '') {
+          e.target.value = '';
+          trocoError.style.display = 'none';
+          e.target.style.borderColor = '';
+          return;
+        }
+        
+        // Formata como dinheiro
+        const formatted = formatMoney(value);
+        e.target.value = formatted;
+        
+        // Validar valor numérico
+        const numericValue = parseFloat(value.replace(/\D/g, '')) / 100;
+        
+        // Validar limite de R$ 200,00
+        if (numericValue > 200) {
+          trocoError.textContent = '⚠️ Troco máximo: R$ 200,00';
+          trocoError.style.display = 'block';
+          e.target.style.borderColor = '#dc3545';
+        } else if (numericValue < 0.01 && value !== '') {
+          trocoError.textContent = '⚠️ Valor mínimo: R$ 0,01';
+          trocoError.style.display = 'block';
+          e.target.style.borderColor = '#dc3545';
+        } else {
+          trocoError.style.display = 'none';
+          e.target.style.borderColor = '';
+        }
+      });
+      
+      // Garantir formatação ao sair do campo
+      trocoInput.addEventListener('blur', (e) => {
+        if (e.target.value && !e.target.value.startsWith('R$')) {
+          let value = e.target.value.replace(/\D/g, '');
+          if (value) {
+            e.target.value = formatMoney(value);
+          }
+        }
+      });
+    }, 0);
+  } else if (method === 'pix') {
+    detailsDiv.innerHTML = `
+      <p class="payment-total-info">
+        ✅ Enviaremos a chave PIX após a confirmação do pedido.
+      </p>
+    `;
+  } else {
+    detailsDiv.innerHTML = `
+      <p class="payment-total-info">
+        ✅ A maquininha estará disponível na entrega.
+      </p>
+    `;
+  }
+}
+
+// Restaurar seleção anterior
+if (selectedPayment && selectedPayment.method) {
+  const card = document.querySelector(`.pay-card[data-method="${selectedPayment.method}"]`);
+  if (card) {
+    card.classList.add('active');
+    renderPaymentDetails(selectedPayment.method);
+  }
+}
+
+// Finalizar pedido
+document.getElementById('finish-order').addEventListener('click', () => {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  if (cart.length === 0) {
+    al// Extrair valor numérico (remover R$ e converter vírgula)
+      const cleanValue = troco.replace('R$', '').replace(/\s/g, '').replace(',', '.');
+      const numericValue = parseFloat(cleanValue);
+      
+      // Validar troco
+      if (isNaN(numericValue) || numericValue <= 0) {
+        alert('⚠️ Troco inválido! Digite um valor válido
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user || !user.endereco) {
+    alert('Preencha os dados de entrega.');
+    window.location.href = 'entrega.html';
+    return;
+  }
+
+  if (!selectedPayment || !selectedPayment.method) {
+    alert('Escolha a forma de pagamento.');
+    return;
+  }
+
+  const total = cart.reduce((sum, item) => sum + (item.customizedPrice || item.price), 0);
+
+  if (selectedPayment.method === 'dinheiro') {
+    const trocoInput = document.getElementById('troco');
+    const troco = trocoInput?.value;
+    
+    if (troco) {
+      const numericValue = parseFloat(troco.replace(',', '.'));
+      
+      // Validar troco
+      if (isNaN(numericValue)) {
+        alert('⚠️ Troco inválido! Digite apenas números.');
+        return;
+      }
+      
+      if (numericValue > 200) {
+        alert('⚠️ Troco máximo permitido: R$ 200,00');
+        return;
+      }
+      
+      if (numericValue <= total) {
+        alert(`⚠️ O valor do troco (R$ ${numericValue.toFixed(2).replace('.', ',')}) deve ser maior que o total do pedido (R$ ${total.toFixed(2).replace('.', ',')})!`);
+        return;
+      }
+      
+      selectedPayment.troco = numericValue.toFixed(2);
+    }
+  }
+
+  localStorage.setItem('payment', JSON.stringify(selectedPayment));
+  sendWhatsApp(user, selectedPayment, cart, total);
+});

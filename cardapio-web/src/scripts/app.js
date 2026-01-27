@@ -14,6 +14,10 @@ function initIndexPage() {
   // Inicializar controllers
   menuController = new MenuController(menuAPI, store);
   cartController = new CartController(store);
+  
+  // Tornar disponível globalmente
+  window.menuController = menuController;
+  window.cartController = cartController;
 
   // Inicializar
   menuController.init();

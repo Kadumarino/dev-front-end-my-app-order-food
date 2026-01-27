@@ -1,8 +1,25 @@
+
 // ===============================================
 // VALIDAÇÕES DE FORMULÁRIO
 // Compatível com: Chrome, Firefox, Safari, Edge, Opera
 // Navegadores móveis: Chrome Mobile, Safari Mobile, Samsung Internet
 // ===============================================
+
+// Oculta todas as mensagens de erro ao carregar a página
+document.addEventListener('DOMContentLoaded', function() {
+  // Oculta todas as mensagens de erro genéricas
+  const errorMessages = document.querySelectorAll('.error-message');
+  errorMessages.forEach(function(el) {
+    el.style.display = 'none';
+  });
+  // Oculta mensagens de erro específicas do campo rua (por id ou classe)
+  const ruaErrorById = document.getElementById('error-rua');
+  if (ruaErrorById) ruaErrorById.style.display = 'none';
+  const ruaErrorByClass = document.querySelectorAll('.error-rua');
+  ruaErrorByClass.forEach(function(el) {
+    el.style.display = 'none';
+  });
+});
 
 /**
  * Remove emojis, links e caracteres não identificáveis (mantém espaços)
@@ -407,94 +424,72 @@ function setupPhoneValidationWithError(fieldId, errorLettersId, errorIncompleteI
   field.addEventListener('input', (e) => {
     let value = e.target.value;
     const oldLength = value.length;
-    
-    // Sanitiza (permite espaços)
     value = sanitizeInput(value);
-    
-    // Aplica máscara de telefone
     value = maskPhone(value);
-    
     const newLength = value.length;
-    
     e.target.value = value;
-    
-    // Calcula nova posição do cursor baseado na diferença de tamanho
     const cursorPosition = e.target.selectionStart + (newLength - oldLength);
-    
-    // Posiciona cursor no final se a string cresceu (máscara adicionou caracteres)
     if (newLength > oldLength) {
       e.target.setSelectionRange(newLength, newLength);
     } else {
       e.target.setSelectionRange(cursorPosition, cursorPosition);
     }
-    
-    // Remove mensagens de erro durante digitação, mas mantém feedback visual
-    if (errorLetters) errorLetters.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      const hasLetters = /[a-zA-Z]/.test(value);
-      
-      if (hasLetters) {
-        e.target.style.borderColor = '#f44336';
-        e.target.setAttribute('aria-invalid', 'true');
-      } else {
-        const isValid = validatePhone(value);
-        e.target.setAttribute('aria-invalid', !isValid);
-        e.target.style.borderColor = isValid ? '' : '#f44336';
-      }
-    } else {
+    if (!value) {
       e.target.style.borderColor = '';
       e.target.setAttribute('aria-invalid', 'false');
+      if (errorLetters) errorLetters.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasLetters = /[a-zA-Z]/.test(value);
+    if (hasLetters) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorLetters) errorLetters.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const isValid = validatePhone(value);
+      e.target.setAttribute('aria-invalid', !isValid);
+      e.target.style.borderColor = isValid ? '' : '#f44336';
+      if (!isValid) {
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorLetters) errorLetters.style.display = 'none';
+      } else {
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
+        if (errorLetters) errorLetters.style.display = 'none';
+      }
     }
   });
   
   // Valida ao sair do campo (blur)
   field.addEventListener('blur', (e) => {
     const value = e.target.value;
-    
-    // Esconde todas as mensagens de erro primeiro
-    if (errorLetters) errorLetters.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      // Verifica se tem letras
-      const hasLetters = /[a-zA-Z]/.test(value);
-      
-      if (hasLetters) {
-        // Erro: contém letras
+    if (!value) {
+      e.target.style.borderColor = '';
+      e.target.setAttribute('aria-invalid', 'false');
+      if (errorLetters) errorLetters.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasLetters = /[a-zA-Z]/.test(value);
+    if (hasLetters) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorLetters) errorLetters.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const numbers = value.replace(/\D/g, '');
+      const isValid = numbers.length === 10 || numbers.length === 11;
+      if (!isValid) {
         e.target.style.borderColor = '#f44336';
         e.target.setAttribute('aria-invalid', 'true');
-        if (errorLetters) {
-          errorLetters.style.display = 'block';
-        }
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorLetters) errorLetters.style.display = 'none';
       } else {
-        // Verifica se está completo
-        const numbers = value.replace(/\D/g, '');
-        const isValid = numbers.length === 10 || numbers.length === 11;
-        
-        if (!isValid) {
-          // Erro: incompleto
-          e.target.style.borderColor = '#f44336';
-          e.target.setAttribute('aria-invalid', 'true');
-          if (errorIncomplete) {
-            errorIncomplete.style.display = 'block';
-          }
-        } else {
-          // Válido
-          e.target.style.borderColor = '';
-          e.target.setAttribute('aria-invalid', 'false');
-        }
-      }
-    } else {
-      // Campo vazio
-      if (!isOptional) {
-        // Se não é opcional e está vazio, considera incompleto
-        e.target.style.borderColor = '';
-      } else {
-        // Se é opcional, está ok vazio
         e.target.style.borderColor = '';
         e.target.setAttribute('aria-invalid', 'false');
+        if (errorLetters) errorLetters.style.display = 'none';
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
       }
     }
   });
@@ -510,91 +505,66 @@ function setupNameValidationWithError(fieldId, errorNumbersId, errorIncompleteId
   const errorNumbers = document.getElementById(errorNumbersId);
   const errorIncomplete = document.getElementById(errorIncompleteId);
   
-  // Sanitiza e aplica capitalização na entrada
+  // Sanitiza e aplica capitalização na entrada (SEM mostrar mensagens durante digitação)
   field.addEventListener('input', (e) => {
     let value = e.target.value;
     const oldLength = value.length;
-    
-    // Sanitiza (permite espaços)
     value = sanitizeInput(value);
-    
-    // Aplica capitalização
     value = capitalizeAsYouType(value);
-    
     const newLength = value.length;
-    
     e.target.value = value;
-    
-    // Calcula nova posição do cursor baseado na diferença de tamanho
     const cursorPosition = e.target.selectionStart + (newLength - oldLength);
-    
-    // Posiciona cursor no final se a string cresceu
     if (newLength > oldLength) {
       e.target.setSelectionRange(newLength, newLength);
     } else {
       e.target.setSelectionRange(cursorPosition, cursorPosition);
     }
     
-    // Remove mensagens de erro durante digitação, mas mantém feedback visual
+    // Remove mensagens de erro durante a digitação
     if (errorNumbers) errorNumbers.style.display = 'none';
     if (errorIncomplete) errorIncomplete.style.display = 'none';
     
-    if (value) {
-      const hasNumbers = /\d/.test(value);
-      
-      if (hasNumbers) {
-        e.target.style.borderColor = '#f44336';
-        e.target.setAttribute('aria-invalid', 'true');
-      } else {
-        const isValid = validateName(value);
-        e.target.setAttribute('aria-invalid', !isValid);
-        e.target.style.borderColor = isValid ? '' : '#f44336';
-      }
-    } else {
+    // Apenas feedback visual na borda
+    if (!value) {
       e.target.style.borderColor = '';
       e.target.setAttribute('aria-invalid', 'false');
+    } else {
+      const hasNumbers = /\d/.test(value);
+      const isValid = !hasNumbers && value.length >= 3;
+      e.target.style.borderColor = isValid ? '' : '#f44336';
+      e.target.setAttribute('aria-invalid', !isValid);
     }
   });
   
-  // Valida ao sair do campo (blur)
+  // Valida ao sair do campo (blur) - AQUI SIM mostra as mensagens
   field.addEventListener('blur', (e) => {
     const value = e.target.value;
-    
-    // Esconde todas as mensagens de erro primeiro
-    if (errorNumbers) errorNumbers.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      // Verifica se tem números
-      const hasNumbers = /\d/.test(value);
-      
-      if (hasNumbers) {
-        // Erro: contém números
+    if (!value) {
+      e.target.style.borderColor = '';
+      e.target.setAttribute('aria-invalid', 'false');
+      if (errorNumbers) errorNumbers.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasNumbers = /\d/.test(value);
+    if (hasNumbers) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorNumbers) errorNumbers.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const isValid = validateName(value);
+      if (!isValid) {
         e.target.style.borderColor = '#f44336';
         e.target.setAttribute('aria-invalid', 'true');
-        if (errorNumbers) {
-          errorNumbers.style.display = 'block';
-        }
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorNumbers) errorNumbers.style.display = 'none';
       } else {
-        // Verifica se tem pelo menos 3 caracteres
-        const isValid = value.length >= 3;
-        
-        if (!isValid) {
-          // Erro: incompleto (menos de 3 caracteres)
-          e.target.style.borderColor = '#f44336';
-          e.target.setAttribute('aria-invalid', 'true');
-          if (errorIncomplete) {
-            errorIncomplete.style.display = 'block';
-          }
-        } else {
-          // Válido
-          e.target.style.borderColor = '';
-          e.target.setAttribute('aria-invalid', 'false');
-        }
+        e.target.style.borderColor = '';
+        e.target.setAttribute('aria-invalid', 'false');
+        if (errorNumbers) errorNumbers.style.display = 'none';
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
       }
-    } else {
-      // Campo vazio
-      e.target.style.borderColor = '';
     }
   });
 }
@@ -613,88 +583,73 @@ function setupCepValidationWithError(fieldId, errorLettersId, errorIncompleteId)
   field.addEventListener('input', (e) => {
     let value = e.target.value;
     const oldLength = value.length;
-    
-    // Sanitiza (permite espaços)
     value = sanitizeInput(value);
-    
-    // Aplica máscara de CEP
     value = maskCEP(value);
-    
     const newLength = value.length;
-    
     e.target.value = value;
-    
-    // Calcula nova posição do cursor baseado na diferença de tamanho
     const cursorPosition = e.target.selectionStart + (newLength - oldLength);
-    
-    // Posiciona cursor no final se a string cresceu (máscara adicionou caracteres)
     if (newLength > oldLength) {
       e.target.setSelectionRange(newLength, newLength);
     } else {
       e.target.setSelectionRange(cursorPosition, cursorPosition);
     }
-    
-    // Remove mensagens de erro durante digitação, mas mantém feedback visual
-    if (errorLetters) errorLetters.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      const hasLetters = /[a-zA-Z]/.test(value);
-      
-      if (hasLetters) {
-        e.target.style.borderColor = '#f44336';
-        e.target.setAttribute('aria-invalid', 'true');
-      } else {
-        const isValid = validateCEP(value);
-        e.target.setAttribute('aria-invalid', !isValid);
-        e.target.style.borderColor = isValid ? '' : '#f44336';
-      }
-    } else {
+    if (!value) {
       e.target.style.borderColor = '';
       e.target.setAttribute('aria-invalid', 'false');
+      if (errorLetters) errorLetters.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasLetters = /[a-zA-Z]/.test(value);
+    if (hasLetters) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorLetters) errorLetters.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const isValid = validateCEP(value);
+      e.target.setAttribute('aria-invalid', !isValid);
+      e.target.style.borderColor = isValid ? '' : '#f44336';
+      if (!isValid) {
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorLetters) errorLetters.style.display = 'none';
+      } else {
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
+        if (errorLetters) errorLetters.style.display = 'none';
+      }
     }
   });
   
   // Valida ao sair do campo (blur)
   field.addEventListener('blur', (e) => {
     const value = e.target.value;
-    
-    // Esconde todas as mensagens de erro primeiro
-    if (errorLetters) errorLetters.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      // Verifica se tem letras
-      const hasLetters = /[a-zA-Z]/.test(value);
-      
-      if (hasLetters) {
-        // Erro: contém letras
+    if (!value) {
+      e.target.style.borderColor = '';
+      e.target.setAttribute('aria-invalid', 'false');
+      if (errorLetters) errorLetters.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasLetters = /[a-zA-Z]/.test(value);
+    if (hasLetters) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorLetters) errorLetters.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const numbers = value.replace(/\D/g, '');
+      const isValid = numbers.length === 8;
+      if (!isValid) {
         e.target.style.borderColor = '#f44336';
         e.target.setAttribute('aria-invalid', 'true');
-        if (errorLetters) {
-          errorLetters.style.display = 'block';
-        }
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorLetters) errorLetters.style.display = 'none';
       } else {
-        // Verifica se está completo
-        const numbers = value.replace(/\D/g, '');
-        const isValid = numbers.length === 8;
-        
-        if (!isValid) {
-          // Erro: incompleto
-          e.target.style.borderColor = '#f44336';
-          e.target.setAttribute('aria-invalid', 'true');
-          if (errorIncomplete) {
-            errorIncomplete.style.display = 'block';
-          }
-        } else {
-          // Válido
-          e.target.style.borderColor = '';
-          e.target.setAttribute('aria-invalid', 'false');
-        }
+        e.target.style.borderColor = '';
+        e.target.setAttribute('aria-invalid', 'false');
+        if (errorLetters) errorLetters.style.display = 'none';
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
       }
-    } else {
-      // Campo vazio
-      e.target.style.borderColor = '';
     }
   });
 }
@@ -713,87 +668,72 @@ function setupCidadeValidationWithError(fieldId, errorNumbersId, errorIncomplete
   field.addEventListener('input', (e) => {
     let value = e.target.value;
     const oldLength = value.length;
-    
-    // Sanitiza (permite espaços)
     value = sanitizeInput(value);
-    
-    // Aplica capitalização
     value = capitalizeAsYouType(value);
-    
     const newLength = value.length;
-    
     e.target.value = value;
-    
-    // Calcula nova posição do cursor baseado na diferença de tamanho
     const cursorPosition = e.target.selectionStart + (newLength - oldLength);
-    
-    // Posiciona cursor no final se a string cresceu
     if (newLength > oldLength) {
       e.target.setSelectionRange(newLength, newLength);
     } else {
       e.target.setSelectionRange(cursorPosition, cursorPosition);
     }
-    
-    // Remove mensagens de erro durante digitação, mas mantém feedback visual
-    if (errorNumbers) errorNumbers.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      const hasNumbers = /\d/.test(value);
-      
-      if (hasNumbers) {
-        e.target.style.borderColor = '#f44336';
-        e.target.setAttribute('aria-invalid', 'true');
-      } else {
-        const isValid = value.length >= 3;
-        e.target.setAttribute('aria-invalid', !isValid);
-        e.target.style.borderColor = isValid ? '' : '#f44336';
-      }
-    } else {
+    if (!value) {
       e.target.style.borderColor = '';
       e.target.setAttribute('aria-invalid', 'false');
+      if (errorNumbers) errorNumbers.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasNumbers = /\d/.test(value);
+    if (hasNumbers) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorNumbers) errorNumbers.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const isValid = value.length >= 3;
+      e.target.setAttribute('aria-invalid', !isValid);
+      e.target.style.borderColor = isValid ? '' : '#f44336';
+      if (!isValid) {
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorNumbers) errorNumbers.style.display = 'none';
+      } else {
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
+        if (errorNumbers) errorNumbers.style.display = 'none';
+      }
     }
   });
   
   // Valida ao sair do campo (blur)
   field.addEventListener('blur', (e) => {
     const value = e.target.value;
-    
-    // Esconde todas as mensagens de erro primeiro
-    if (errorNumbers) errorNumbers.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      // Verifica se tem números
-      const hasNumbers = /\d/.test(value);
-      
-      if (hasNumbers) {
-        // Erro: contém números
+    if (!value) {
+      e.target.style.borderColor = '';
+      e.target.setAttribute('aria-invalid', 'false');
+      if (errorNumbers) errorNumbers.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasNumbers = /\d/.test(value);
+    if (hasNumbers) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorNumbers) errorNumbers.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const isValid = value.length >= 3;
+      if (!isValid) {
         e.target.style.borderColor = '#f44336';
         e.target.setAttribute('aria-invalid', 'true');
-        if (errorNumbers) {
-          errorNumbers.style.display = 'block';
-        }
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorNumbers) errorNumbers.style.display = 'none';
       } else {
-        // Verifica se tem pelo menos 3 caracteres
-        const isValid = value.length >= 3;
-        
-        if (!isValid) {
-          // Erro: incompleto (menos de 3 caracteres)
-          e.target.style.borderColor = '#f44336';
-          e.target.setAttribute('aria-invalid', 'true');
-          if (errorIncomplete) {
-            errorIncomplete.style.display = 'block';
-          }
-        } else {
-          // Válido
-          e.target.style.borderColor = '';
-          e.target.setAttribute('aria-invalid', 'false');
-        }
+        e.target.style.borderColor = '';
+        e.target.setAttribute('aria-invalid', 'false');
+        if (errorNumbers) errorNumbers.style.display = 'none';
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
       }
-    } else {
-      // Campo vazio
-      e.target.style.borderColor = '';
     }
   });
 }
@@ -813,87 +753,72 @@ function setupBairroValidationWithError(fieldId, errorNumbersId, errorIncomplete
   field.addEventListener('input', (e) => {
     let value = e.target.value;
     const oldLength = value.length;
-    
-    // Sanitiza (permite espaços)
     value = sanitizeInput(value);
-    
-    // Aplica capitalização
     value = capitalizeAsYouType(value);
-    
     const newLength = value.length;
-    
     e.target.value = value;
-    
-    // Calcula nova posição do cursor baseado na diferença de tamanho
     const cursorPosition = e.target.selectionStart + (newLength - oldLength);
-    
-    // Posiciona cursor no final se a string cresceu
     if (newLength > oldLength) {
       e.target.setSelectionRange(newLength, newLength);
     } else {
       e.target.setSelectionRange(cursorPosition, cursorPosition);
     }
-    
-    // Remove mensagens de erro durante digitação, mas mantém feedback visual
-    if (errorNumbers) errorNumbers.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      const hasNumbers = /\d/.test(value);
-      
-      if (hasNumbers) {
-        e.target.style.borderColor = '#f44336';
-        e.target.setAttribute('aria-invalid', 'true');
-      } else {
-        const isValid = value.length > 1;
-        e.target.setAttribute('aria-invalid', !isValid);
-        e.target.style.borderColor = isValid ? '' : '#f44336';
-      }
-    } else {
+    if (!value) {
       e.target.style.borderColor = '';
       e.target.setAttribute('aria-invalid', 'false');
+      if (errorNumbers) errorNumbers.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasNumbers = /\d/.test(value);
+    if (hasNumbers) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorNumbers) errorNumbers.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const isValid = value.length > 1;
+      e.target.setAttribute('aria-invalid', !isValid);
+      e.target.style.borderColor = isValid ? '' : '#f44336';
+      if (!isValid) {
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorNumbers) errorNumbers.style.display = 'none';
+      } else {
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
+        if (errorNumbers) errorNumbers.style.display = 'none';
+      }
     }
   });
   
   // Valida ao sair do campo (blur)
   field.addEventListener('blur', (e) => {
     const value = e.target.value;
-    
-    // Esconde todas as mensagens de erro primeiro
-    if (errorNumbers) errorNumbers.style.display = 'none';
-    if (errorIncomplete) errorIncomplete.style.display = 'none';
-    
-    if (value) {
-      // Verifica se tem números
-      const hasNumbers = /\d/.test(value);
-      
-      if (hasNumbers) {
-        // Erro: contém números
+    if (!value) {
+      e.target.style.borderColor = '';
+      e.target.setAttribute('aria-invalid', 'false');
+      if (errorNumbers) errorNumbers.style.display = 'none';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+      return;
+    }
+    const hasNumbers = /\d/.test(value);
+    if (hasNumbers) {
+      e.target.style.borderColor = '#f44336';
+      e.target.setAttribute('aria-invalid', 'true');
+      if (errorNumbers) errorNumbers.style.display = 'block';
+      if (errorIncomplete) errorIncomplete.style.display = 'none';
+    } else {
+      const isValid = value.length > 1;
+      if (!isValid) {
         e.target.style.borderColor = '#f44336';
         e.target.setAttribute('aria-invalid', 'true');
-        if (errorNumbers) {
-          errorNumbers.style.display = 'block';
-        }
+        if (errorIncomplete) errorIncomplete.style.display = 'block';
+        if (errorNumbers) errorNumbers.style.display = 'none';
       } else {
-        // Verifica se tem mais de 1 caractere
-        const isValid = value.length > 1;
-        
-        if (!isValid) {
-          // Erro: incompleto (1 caractere ou menos)
-          e.target.style.borderColor = '#f44336';
-          e.target.setAttribute('aria-invalid', 'true');
-          if (errorIncomplete) {
-            errorIncomplete.style.display = 'block';
-          }
-        } else {
-          // Válido
-          e.target.style.borderColor = '';
-          e.target.setAttribute('aria-invalid', 'false');
-        }
+        e.target.style.borderColor = '';
+        e.target.setAttribute('aria-invalid', 'false');
+        if (errorNumbers) errorNumbers.style.display = 'none';
+        if (errorIncomplete) errorIncomplete.style.display = 'none';
       }
-    } else {
-      // Campo vazio
-      e.target.style.borderColor = '';
     }
   });
 }

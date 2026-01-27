@@ -109,6 +109,27 @@ select {
   transition: all var(--transition-base);
 }
 
+/* Texto preenchido com cores mais fortes */
+input[type="text"]:not(:placeholder-shown),
+input[type="email"]:not(:placeholder-shown),
+input[type="tel"]:not(:placeholder-shown),
+input[type="number"]:not(:placeholder-shown),
+textarea:not(:placeholder-shown),
+select:not([value=""]) {
+  color: #000;
+  font-weight: var(--font-weight-medium);
+}
+
+.dark-mode input[type="text"]:not(:placeholder-shown),
+.dark-mode input[type="email"]:not(:placeholder-shown),
+.dark-mode input[type="tel"]:not(:placeholder-shown),
+.dark-mode input[type="number"]:not(:placeholder-shown),
+.dark-mode textarea:not(:placeholder-shown),
+.dark-mode select:not([value=""]) {
+  color: #fff;
+  font-weight: var(--font-weight-medium);
+}
+
   margin-bottom: var(--spacing-md);
 }
 
@@ -186,6 +207,11 @@ input[type="radio"] {
   margin-top: calc(var(--spacing-xs) * -1);
   margin-bottom: var(--spacing-md);
   display: block;
+}
+
+/* Form Label Width Override */
+.form-numero {
+  flex: 0 0 120px;
 }
 
 /* Success State */

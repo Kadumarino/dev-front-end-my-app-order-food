@@ -6,7 +6,7 @@
 :root {
   /* Cores - Light Theme */
   --bg-color: #fff8f0;
-  --text-color: #333;
+  --text-color: #1a1a1a;
   --header-bg: #7cb342;
   --item-bg: #fff;
   --cart-bg: #f4f4f4;
@@ -75,7 +75,7 @@
 /* Dark Mode */
 .dark-mode {
   --bg-color: #121212;
-  --text-color: #e0e0e0;
+  --text-color: #f5f5f5;
   --header-bg: #1b5e20;
   --item-bg: #1e1e1e;
   --cart-bg: #2c2c2c;

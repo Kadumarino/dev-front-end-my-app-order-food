@@ -25,7 +25,17 @@
   <!-- Font Optimization -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Preload da fonte principal para evitar FOUT -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" media="print">
+  <script>
+    if (document.querySelector('link[media="print"]')) {
+      document.querySelector('link[media="print"]').media = 'all';
+    }
+  </script>
+  <noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </noscript>
   
   <!-- Critical CSS -->
   <link rel="stylesheet" href="src/styles/main.css">
@@ -56,12 +66,10 @@
           <small id="telefone-adicional-error-incomplete" class="error-message">❌ O campo telefone adicional está incompleto.</small>
         </label>
         
-        <label for="del-cep">CEP</label>
+        <label for="del-cep">CEP (opcional - para buscar endereço automaticamente)</label>
         <div class="cep-group">
           <div class="cep-input-wrapper">
-            <input type="text" id="del-cep" required aria-required="true" aria-invalid="false" placeholder="12345-678" maxlength="9">
-            <small id="cep-error-letters" class="error-message">❌ O CEP não pode conter letras. Por favor, informe o CEP correto.</small>
-            <small id="cep-error-incomplete" class="error-message">❌ O campo CEP está incompleto.</small>
+            <input type="text" id="del-cep" aria-required="false" aria-invalid="false" placeholder="12345-678" maxlength="9">
             <small id="cep-loading" class="success-message">🔍 Buscando CEP...</small>
             <small id="cep-error" class="error-message">❌ CEP não encontrado</small>
           </div>
@@ -73,9 +81,9 @@
         <div class="form-row">
           <label for="del-rua">Rua
             <input type="text" id="del-rua" required aria-required="true" aria-invalid="false" placeholder="Rua das Flores">
-            <small id="rua-error" style="display: none; color: #f44336;">❌ Por favor, insira a rua completa.</small>
+            <small id="rua-error" class="error-message hidden">❌ Por favor, insira a rua completa.</small>
           </label>
-          <label for="del-numero" style="flex: 0 0 120px;">Número
+          <label for="del-numero" class="form-numero">Número
             <input type="text" id="del-numero" required aria-required="true" aria-invalid="false" placeholder="123">
           </label>
         </div>
@@ -106,173 +114,9 @@
   <script src="js/validation.js"></script>
   <script src="js/notification.js"></script>
   <script src="js/shared.js"></script>
-  <script>
-    // Event listener para botão voltar
-    document.getElementById('btn-voltar').addEventListener('click', () => {
-      window.location.href = 'index.html';
-    });
-
-    // Carregar dados existentes se houver
-    const user = JSON.parse(localStorage.getItem('user')) || {};
-    document.getElementById('del-nome').value = user.nome || '';
-    document.getElementById('del-telefone').value = user.telefone || '';
-    document.getElementById('del-telefone-adicional').value = user.telefoneAdicional || '';
-    if (user.endereco) {
-      document.getElementById('del-cep').value = user.endereco.cep || '';
-      document.getElementById('del-rua').value = user.endereco.rua || '';
-      document.getElementById('del-numero').value = user.endereco.numero || '';
-      document.getElementById('del-bairro').value = user.endereco.bairro || '';
-      document.getElementById('del-cidade').value = user.endereco.cidade || '';
-      document.getElementById('del-referencia').value = user.endereco.referencia || '';
-    }
-
-    // Configurar validações em tempo real com mensagens de erro
-    setupNameValidationWithError('del-nome', 'nome-error-numbers', 'nome-error-incomplete');
-    setupPhoneValidationWithError('del-telefone', 'telefone-error-letters', 'telefone-error-incomplete');
-    setupPhoneValidationWithError('del-telefone-adicional', 'telefone-adicional-error-letters', 'telefone-adicional-error-incomplete', true);
-    setupCepValidationWithError('del-cep', 'cep-error-letters', 'cep-error-incomplete');
-    setupFieldValidationWithError('del-rua', (v) => v && v.length > 1, capitalizeAsYouType, 'rua-error');
-    setupFieldValidation('del-numero', validateNumber);
-    setupBairroValidationWithError('del-bairro', 'bairro-error-numbers', 'bairro-error-incomplete');
-    setupCidadeValidationWithError('del-cidade', 'cidade-error-numbers', 'cidade-error-incomplete');
-    setupFieldValidation('del-referencia', () => true, capitalizeAsYouType);
-    
-    // Buscar CEP
-    const cepField = document.getElementById('del-cep');
-    const btnBuscarCep = document.getElementById('btn-buscar-cep');
-    const cepLoading = document.getElementById('cep-loading');
-    const cepError = document.getElementById('cep-error');
-    
-    async function buscarCEP() {
-      const cep = cepField.value.replace(/\D/g, '');
-      
-      if (cep.length !== 8) {
-        alert('❌ Digite um CEP válido com 8 dígitos');
-        cepField.focus();
-        return;
-      }
-      
-      cepLoading.classList.add('show');
-      cepError.classList.remove('show');
-      btnBuscarCep.disabled = true;
-      
-      const result = await searchCEP(cep);
-      
-      cepLoading.classList.remove('show');
-      btnBuscarCep.disabled = false;
-      
-      if (result) {
-        document.getElementById('del-rua').value = capitalizeAsYouType(result.rua || '');
-        document.getElementById('del-bairro').value = capitalizeAsYouType(result.bairro || '');
-        document.getElementById('del-cidade').value = capitalizeAsYouType(result.cidade || '');
-        document.getElementById('del-numero').focus();
-      } else {
-        cepError.classList.add('show');
-        alert('❌ CEP não encontrado. Verifique o número digitado.');
-      }
-    }
-    
-    btnBuscarCep.addEventListener('click', buscarCEP);
-    cepField.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        buscarCEP();
-      }
-    });
-
-    // Salvar e ir para pagamento
-    document.getElementById('delivery-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const nome = document.getElementById('del-nome').value.trim();
-      const telefone = document.getElementById('del-telefone').value.trim();
-      const telefoneAdicional = document.getElementById('del-telefone-adicional').value.trim();
-      const cep = document.getElementById('del-cep').value.trim();
-      const rua = document.getElementById('del-rua').value.trim();
-      const numero = document.getElementById('del-numero').value.trim();
-      const bairro = document.getElementById('del-bairro').value.trim();
-      const cidade = document.getElementById('del-cidade').value.trim();
-      const referencia = document.getElementById('del-referencia').value.trim();
-      
-      // Validações
-      if (!validateName(nome)) {
-        alert('❌ Nome inválido');
-        document.getElementById('del-nome').focus();
-        return;
-      }
-      
-      if (!validatePhone(telefone)) {
-        alert('❌ Telefone inválido');
-        document.getElementById('del-telefone').focus();
-        return;
-      }
-      
-      if (telefoneAdicional && !validatePhone(telefoneAdicional)) {
-        alert('❌ Telefone adicional inválido');
-        document.getElementById('del-telefone-adicional').focus();
-        return;
-      }
-      
-      if (!validateCEP(cep)) {
-        alert('❌ CEP inválido');
-        document.getElementById('del-cep').focus();
-        return;
-      }
-      
-      if (!validateAddress(rua) || !validateAddress(bairro) || !validateAddress(cidade)) {
-        alert('❌ Preencha todos os campos do endereço');
-        return;
-      }
-      
-      // Validação específica de rua (mais de 1 caractere)
-      if (rua.length <= 1) {
-        alert('❌ Por favor, insira a rua completa');
-        document.getElementById('del-rua').focus();
-        return;
-      }
-      
-      // Validação específica de bairro (não pode ter números e mais de 1 caractere)
-      if (/\d/.test(bairro)) {
-        alert('❌ O bairro não pode conter números');
-        document.getElementById('del-bairro').focus();
-        return;
-      }
-      
-      if (bairro.length <= 1) {
-        alert('❌ Por favor, insira o bairro completo');
-        document.getElementById('del-bairro').focus();
-        return;
-      }
-      
-      // Validação específica de cidade (não pode ter números e mínimo 3 caracteres)
-      if (/\d/.test(cidade)) {
-        alert('❌ A cidade não pode conter números');
-        document.getElementById('del-cidade').focus();
-        return;
-      }
-      
-      if (cidade.length < 3) {
-        alert('❌ Por favor, insira a cidade completa');
-        document.getElementById('del-cidade').focus();
-        return;
-      }
-      
-      if (!validateNumber(numero)) {
-        alert('❌ Número inválido');
-        document.getElementById('del-numero').focus();
-        return;
-      }
-      
-      const user = {
-        nome: capitalizeName(nome),
-        telefone,
-        telefoneAdicional: telefoneAdicional || null,
-        endereco: { cep, rua, numero, bairro, cidade, referencia }
-      };
-      
-      localStorage.setItem('user', JSON.stringify(user));
-      window.location.href = 'pagamento.html';
-    });
-  </script>
+  <script src="js/entrega.js"></script>
+  
+  <!-- Pull to Refresh -->
+  <script src="js/pull-refresh.js"></script>
 </body>
 </html>
