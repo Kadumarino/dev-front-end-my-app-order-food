@@ -206,7 +206,7 @@ input[type="radio"] {
   font-size: var(--font-size-sm);
   margin-top: calc(var(--spacing-xs) * -1);
   margin-bottom: var(--spacing-md);
-  display: block;
+  display: none;
 }
 
 /* Form Label Width Override */
