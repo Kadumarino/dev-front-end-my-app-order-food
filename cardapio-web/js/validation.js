@@ -210,17 +210,20 @@ function validatePhone(value) {
 function validateName(value) {
   if (!value) return false;
   
+  // Remove espaços extras
+  const trimmedValue = value.trim();
+  
   // Verifica se contém números
-  if (/\d/.test(value)) {
+  if (/\d/.test(trimmedValue)) {
     return false;
   }
   
-  // Deve ter pelo menos 3 caracteres
-  if (value.trim().length < 3) return false;
+  // Deve ter pelo menos 3 caracteres (sem contar espaços)
+  if (trimmedValue.replace(/\s/g, '').length < 3) return false;
   
   // Apenas letras, espaços e acentos
   const regex = /^[a-zA-ZÀ-ÿ\s]+$/;
-  return regex.test(value.trim());
+  return regex.test(trimmedValue);
 }
 
 /**
@@ -553,8 +556,9 @@ function setupNameValidationWithError(fieldId, errorNumbersId, errorIncompleteId
       if (errorNumbers) errorNumbers.style.display = 'block';
       if (errorIncomplete) errorIncomplete.style.display = 'none';
     } else {
-      const isValid = validateName(value);
-      if (!isValid) {
+      // Só valida se tiver menos de 3 caracteres (sem espaços)
+      const cleanValue = value.trim().replace(/\s/g, '');
+      if (cleanValue.length < 3) {
         e.target.style.borderColor = '#f44336';
         e.target.setAttribute('aria-invalid', 'true');
         if (errorIncomplete) errorIncomplete.style.display = 'block';
