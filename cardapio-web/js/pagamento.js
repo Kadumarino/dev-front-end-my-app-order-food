@@ -67,10 +67,58 @@ function renderPaymentDetails(method) {
             errorSpan.className = 'error';
             errorSpan.id = 'troco-error';
             
+            // Checkbox sem troco
+            const checkboxWrapper = document.createElement('div');
+            checkboxWrapper.className = 'checkbox-wrapper';
+            checkboxWrapper.style.marginTop = '15px';
+            checkboxWrapper.style.display = 'flex';
+            checkboxWrapper.style.alignItems = 'center';
+            
+            const semTrocoCheckbox = document.createElement('input');
+            semTrocoCheckbox.type = 'checkbox';
+            semTrocoCheckbox.id = 'sem-troco';
+            semTrocoCheckbox.style.marginRight = '8px';
+            semTrocoCheckbox.style.cursor = 'pointer';
+            
+            const checkboxLabel = document.createElement('label');
+            checkboxLabel.htmlFor = 'sem-troco';
+            checkboxLabel.textContent = 'Sem troco';
+            checkboxLabel.style.cursor = 'pointer';
+            checkboxLabel.style.transition = 'font-weight 0.2s ease';
+            
+            checkboxWrapper.appendChild(semTrocoCheckbox);
+            checkboxWrapper.appendChild(checkboxLabel);
+            
             paymentDetail.appendChild(label);
             paymentDetail.appendChild(trocoInput);
             paymentDetail.appendChild(errorSpan);
+            paymentDetail.appendChild(checkboxWrapper);
             detailsDiv.appendChild(paymentDetail);
+            
+            // Interação entre checkbox e input
+            semTrocoCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    trocoInput.value = '';
+                    trocoInput.disabled = true;
+                    trocoInput.style.opacity = '0.5';
+                    errorSpan.textContent = '';
+                    checkboxLabel.style.fontWeight = 'bold';
+                } else {
+                    trocoInput.disabled = false;
+                    trocoInput.style.opacity = '1';
+                    checkboxLabel.style.fontWeight = 'normal';
+                }
+            });
+            
+            // Desmarcar checkbox ao digitar
+            trocoInput.addEventListener('focus', function() {
+                if (semTrocoCheckbox.checked) {
+                    semTrocoCheckbox.checked = false;
+                    this.disabled = false;
+                    this.style.opacity = '1';
+                    checkboxLabel.style.fontWeight = 'normal';
+                }
+            });
             
             // Formata o campo de troco como moeda
             trocoInput.addEventListener('input', function(e) {
@@ -135,30 +183,13 @@ function renderPaymentDetails(method) {
 
 // Finalizar pedido
 document.getElementById('finish-order').addEventListener('click', () => {
-    // ===== LOGS DETALHADOS DO CARRINHO =====
-    console.log('🎯 [PAGAMENTO] Botão Finalizar clicado!');
-    
-    // Verifica ambos os storages
-    const cartLocalStorage = localStorage.getItem('cart');
-    const cartSessionStorage = sessionStorage.getItem('cart');
-    
-    console.log('📦 [PAGAMENTO] localStorage.cart:', cartLocalStorage);
-    console.log('📦 [PAGAMENTO] sessionStorage.cart:', cartSessionStorage);
-    
     // Lê do localStorage (onde o carrinho é realmente salvo)
     const cart = JSON.parse(localStorage.getItem('cart') || '[]');
     
-    console.log('🛒 [PAGAMENTO] Carrinho parseado:', cart);
-    console.log('📊 [PAGAMENTO] Quantidade de itens:', cart.length);
-    
     if (!cart || cart.length === 0) {
-        console.error('❌ [PAGAMENTO] Carrinho está vazio!');
         alert('Seu carrinho está vazio!');
         return;
     }
-    
-    console.log('✅ [PAGAMENTO] Carrinho válido, continuando...');
-    // =======================================
     
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     if (!user.endereco) {
@@ -175,6 +206,7 @@ document.getElementById('finish-order').addEventListener('click', () => {
     // Validação específica para pagamento em dinheiro
     if (selectedPayment.method === 'dinheiro') {
         const trocoInput = document.getElementById('troco');
+        const semTrocoCheckbox = document.getElementById('sem-troco');
         const trocoValue = trocoInput.value.replace('R$ ', '').replace(',', '.');
         const troco = parseFloat(trocoValue);
         
@@ -184,25 +216,33 @@ document.getElementById('finish-order').addEventListener('click', () => {
             return sum + (price * item.quantity);
         }, 0);
         
-        if (isNaN(troco) || troco <= 0) {
-            document.getElementById('troco-error').textContent = 'Por favor, informe o valor do troco.';
-            trocoInput.focus();
-            return;
+        // Se checkbox "sem troco" está marcado, pula validação do troco
+        if (semTrocoCheckbox && semTrocoCheckbox.checked) {
+            selectedPayment.troco = 0;
+            selectedPayment.semTroco = true;
+        } else {
+            // Validação normal do troco
+            if (isNaN(troco) || troco <= 0) {
+                document.getElementById('troco-error').textContent = 'Por favor, informe o valor do troco ou marque "Sem troco".';
+                trocoInput.focus();
+                return;
+            }
+            
+            if (troco > 200) {
+                document.getElementById('troco-error').textContent = 'O troco máximo é R$ 200,00.';
+                trocoInput.focus();
+                return;
+            }
+            
+            if (troco <= total) {
+                document.getElementById('troco-error').textContent = 'O troco deve ser maior que o valor total do pedido.';
+                trocoInput.focus();
+                return;
+            }
+            
+            selectedPayment.troco = troco;
+            selectedPayment.semTroco = false;
         }
-        
-        if (troco > 200) {
-            document.getElementById('troco-error').textContent = 'O troco máximo é R$ 200,00.';
-            trocoInput.focus();
-            return;
-        }
-        
-        if (troco <= total) {
-            document.getElementById('troco-error').textContent = 'O troco deve ser maior que o valor total do pedido.';
-            trocoInput.focus();
-            return;
-        }
-        
-        selectedPayment.troco = troco;
     }
     
     // Calcular total usando customizedPrice ou price, e quantity

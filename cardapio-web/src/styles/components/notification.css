@@ -17,11 +17,11 @@
 }
 
 .notification {
-  background: #000000;
-  color: white;
+  background: #e3f2fd;
+  color: #000000;
   padding: 16px 20px;
   border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0,0,0,1), 0 0 0 1px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.1);
   min-width: 300px;
   max-width: 400px;
   display: flex;
@@ -31,8 +31,8 @@
   opacity: 1;
   transition: all 0.4s ease;
   pointer-events: all;
-  border-left: 4px solid var(--header-bg);
-  border: 1px solid rgba(255,255,255,0.1);
+  border-left: 4px solid #1e88e5;
+  border: 1px solid rgba(0,0,0,0.1);
 }
 
 .notification.show {

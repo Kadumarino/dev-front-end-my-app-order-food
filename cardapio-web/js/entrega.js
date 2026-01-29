@@ -42,6 +42,11 @@ if (user.endereco) {
   document.getElementById('del-referencia').value = user.endereco.referencia || '';
 }
 
+// Garantir que todas as mensagens de erro começam ocultas
+document.querySelectorAll('.error-message, .success-message').forEach(msg => {
+  msg.style.display = 'none';
+});
+
 // Configurar validações em tempo real com mensagens de erro
 setupNameValidationWithError('del-nome', 'nome-error-numbers', 'nome-error-incomplete');
 setupPhoneValidationWithError('del-telefone', 'telefone-error-letters', 'telefone-error-incomplete');

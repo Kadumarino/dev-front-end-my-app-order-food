@@ -115,7 +115,11 @@ function sendWhatsApp(user, payment, cart, total) {
     paymentLine = 'Pagamento: Cartão de Débito na entrega';
   } else if (payment.method === 'dinheiro') {
     paymentLine = 'Pagamento: Dinheiro na entrega';
-    trocoTexto = payment.troco ? `\nTroco para: R$ ${formatPrice(parseFloat(payment.troco))}` : '';
+    if (payment.semTroco) {
+      trocoTexto = '\nSem troco (valor exato)';
+    } else if (payment.troco) {
+      trocoTexto = `\nTroco para: R$ ${formatPrice(parseFloat(payment.troco))}`;
+    }
   }
 
   // Sanitizar dados do usuário
